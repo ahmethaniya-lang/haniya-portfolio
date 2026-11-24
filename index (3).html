@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ahmed Haniya — A Creative Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#141414;--cream:#f1e8d8;--red:#d2453b;--mute:#9a948a;--line:#2a2a2a;--pad:clamp(20px,5vw,66px);
+--serif:'Crimson Text',Georgia,serif;--sans:'Inter',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--cream);font-family:var(--sans);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.cap{font-size:11px;letter-spacing:.16em;text-transform:uppercase}
+/* nav */
+nav{position:absolute;top:0;left:0;right:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:24px var(--pad)}
+.logo{font-family:var(--serif);font-size:22px;letter-spacing:.14em}
+.links{display:flex;gap:26px;align-items:center}
+.links a{font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.links .btn{border:1px solid #8a847a;padding:10px 16px}
+.links .btn:hover{background:var(--cream);color:var(--bg)}
+/* placeholder art (replace with real images: see .ph note in README) */
+.ph{position:relative;overflow:hidden;background:radial-gradient(circle at 30% 35%,var(--a),transparent 60%),radial-gradient(circle at 75% 75%,var(--b),transparent 55%),#14110f}
+.ph::before{content:"";position:absolute;left:50%;bottom:34%;width:24%;aspect-ratio:.85;transform:translateX(-50%);background:#0a0807;border-radius:50%;filter:blur(7px)}
+.ph::after{content:"";position:absolute;left:50%;bottom:-32%;width:72%;height:58%;transform:translateX(-50%);background:#070605;border-radius:50% 50% 0 0;filter:blur(7px)}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2}
+/* hero */
+.hero{position:relative;height:min(100vh,780px);min-height:560px;display:flex;flex-direction:column;justify-content:flex-end;padding:0 var(--pad) 70px}
+.hero .ph{position:absolute;inset:0;opacity:.75}
+.hero .ph::before{left:62%;bottom:38%;width:17%}
+.hero .ph::after{display:none}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 40%,var(--bg) 100%)}
+.hero>*:not(.ph){position:relative;z-index:2}
+.hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(48px,11.5vw,170px);line-height:.95;letter-spacing:-.01em;text-transform:uppercase}
+.hero .sub{display:flex;justify-content:space-between;margin-top:22px;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.play{text-align:center;margin-top:42px;font-size:10px;letter-spacing:.16em;color:#cfc7b8;display:block}
+.dash{display:flex;gap:3px;justify-content:center;margin-top:8px}
+.dash i{width:9px;height:2px;background:#555}.dash i:nth-child(-n+3){background:var(--cream)}
+/* sections */
+section.pad{padding:60px var(--pad)}
+h2.t{font-family:var(--serif);font-weight:400;font-size:clamp(32px,4vw,44px);line-height:1.1}
+.note{color:var(--mute);font-size:11px;letter-spacing:.12em;margin-top:22px}
+/* filmstrip */
+.strip{background:#070707;margin-top:20px;padding:0 0 0;position:relative}
+.strip::before,.strip::after{content:"";display:block;height:22px;background:repeating-linear-gradient(90deg,transparent 0 6px,#1c1c1c 6px 22px,transparent 22px 32px);background-size:32px 10px;background-repeat:repeat-x;background-position:0 6px}
+.reel{display:flex;gap:12px;overflow-x:auto;padding:6px var(--pad);scrollbar-width:none;scroll-snap-type:x proximity}
+.reel::-webkit-scrollbar{display:none}
+.scene{flex:0 0 min(78vw,330px);scroll-snap-align:start;background:#1b1b1b;display:block}
+.scene .ph{height:210px}
+.scene .in{text-align:center;padding:14px 10px 16px}
+.scene .n{font-size:9px;letter-spacing:.18em;color:var(--red)}
+.scene .nm{font-family:var(--serif);font-size:23px;line-height:1.2}
+.scene .ds{font-size:9px;letter-spacing:.14em;color:var(--mute);text-transform:uppercase}
+.track{position:relative;height:1px;background:var(--line);width:min(52%,520px);margin:32px auto 8px}
+.track i{position:absolute;top:-8px;left:0;width:1px;height:16px;background:var(--red);transition:left .1s}
+.track+.cap{text-align:center;color:var(--mute);font-size:10px}
+/* category */
+.page{padding:150px var(--pad) 80px}
+.page h1{font-family:var(--serif);font-weight:400;font-size:clamp(60px,10vw,120px);line-height:1;text-transform:uppercase}
+.tabs{display:flex;gap:22px;flex-wrap:wrap;margin:50px 0 56px}
+.tabs a{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.tabs a.on,.tabs a:hover{color:var(--red)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:24px}
+.card{position:relative;aspect-ratio:.67;display:block}
+.card .ph{position:absolute;inset:0}
+.card::after{content:"";position:absolute;inset:0;z-index:3;background:linear-gradient(transparent 55%,rgba(0,0,0,.92))}
+.card .no{position:absolute;top:14px;left:16px;z-index:4;font-size:10px;letter-spacing:.16em;color:var(--red)}
+.card .tx{position:absolute;left:0;right:0;bottom:18px;z-index:4;text-align:center;padding:0 14px}
+.card h3{font-family:var(--serif);font-weight:400;font-size:clamp(22px,2.2vw,29px);line-height:1.15;text-transform:uppercase}
+.card .ct{font-size:10px;letter-spacing:.14em;margin-top:8px;text-transform:uppercase}
+.card:hover .ph{filter:brightness(1.25)}
+/* project */
+.phero{height:min(46vh,420px)}
+.proj{max-width:1000px;margin:0 auto;padding:60px var(--pad) 40px}
+.proj h1{font-family:var(--serif);font-weight:400;font-size:clamp(44px,6vw,68px);line-height:1.05;margin-bottom:44px}
+.meta{display:grid;grid-template-columns:1fr 1fr 1.6fr;gap:36px}
+.meta dt{font-size:9px;letter-spacing:.16em;color:var(--red);text-transform:uppercase}
+.meta dd{margin-bottom:16px}
+.meta p{color:#cfc7b8;margin-bottom:14px;max-width:62ch}
+.gal{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:50px}
+.gal .ph{aspect-ratio:3/2;cursor:zoom-in}
+.gal .ph img{transition:transform .6s ease}.gal .ph:hover img{transform:scale(1.04)}
+.pn{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:50px;padding-top:22px}
+.pn small{display:block;font-size:9px;letter-spacing:.16em;color:var(--red);text-transform:uppercase}
+.pn span{font-family:var(--serif);font-size:24px}.pn a:last-child{text-align:right}
+/* about */
+.about{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;padding:110px var(--pad) 70px;min-height:100vh}
+.about .ph{aspect-ratio:.75;max-width:500px;width:100%}
+.credits{text-align:center}
+.credits h1{font-family:var(--serif);font-weight:400;font-size:clamp(40px,5vw,58px);margin-bottom:44px}
+.credits h4{font-size:11px;letter-spacing:.14em;color:var(--red);font-weight:400;text-transform:uppercase;margin-bottom:6px}
+.credits div{margin-bottom:26px}.credits p{line-height:1.55}.credits a:hover{color:var(--red)}
+footer{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding:26px var(--pad);color:var(--mute);font-size:10px;letter-spacing:.16em;text-transform:uppercase}
+.fade{animation:f .5s ease}@keyframes f{from{opacity:0}to{opacity:1}}
+@media(max-width:760px){.links a:not(.btn){display:none}.meta{grid-template-columns:1fr 1fr}.meta>div:last-child{grid-column:1/-1}.about{grid-template-columns:1fr}.about .ph{margin:auto}.gal{grid-template-columns:1fr}.hero .sub{flex-direction:column;gap:6px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
+a:focus-visible{outline:1px solid var(--red);outline-offset:3px}
+
+/* red hover frame */
+.scene,.card{border-radius:10px;overflow:hidden;transition:box-shadow .25s ease}
+.scene{position:relative}
+.scene::after,.card::before{content:"";position:absolute;inset:0;z-index:5;border:2px solid transparent;border-radius:10px;pointer-events:none;transition:border-color .25s ease}
+.scene:hover,.scene:focus-visible,.card:hover,.card:focus-visible{box-shadow:0 0 26px rgba(210,69,59,.32)}
+.scene:hover::after,.scene:focus-visible::after,.card:hover::before,.card:focus-visible::before{border-color:var(--red)}
+/* hero slider */
+.slides{position:absolute;inset:0;overflow:hidden}
+.hero>.slides{position:absolute;z-index:0}
+.slide{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease}
+.slide.on{opacity:.8}
+.slide img,.slide video{width:100%;height:100%;object-fit:cover;display:block}
+.slide .ph{position:absolute;inset:0;opacity:1}
+.hero>.arr{position:absolute;top:46%;z-index:3;background:none;border:0;color:var(--cream);font:300 44px/1 var(--serif);cursor:pointer;padding:8px 14px;opacity:.55}
+.arr:hover{opacity:1}.arr.l{left:calc(var(--pad) - 14px)}.arr.r{right:calc(var(--pad) - 14px)}
+.dash button{width:26px;height:14px;background:none;border:0;cursor:pointer;position:relative;padding:0}
+.dash button::after{content:"";position:absolute;left:0;right:0;top:6px;height:2px;background:#555;transition:background .3s}
+.dash button.on::after{background:var(--cream)}
+/* lightbox */
+.lb{position:fixed;inset:0;z-index:50;background:rgba(10,10,10,.95);display:flex;align-items:center;justify-content:center;padding:24px;cursor:zoom-out}
+.lb img{max-width:100%;max-height:100%;object-fit:contain;cursor:pointer}
+</style>
+</head>
+<body>
+<nav>
+  <a class="logo" href="#home">HANIYA</a>
+  <div class="links"><a href="#social-media">Work</a><a href="#about">About</a><a href="#about">Contact</a><a class="btn" href="#home">Enter Experience</a></div>
+</nav>
+<main id="app"></main>
+<footer><span>© 2026 Ahmed Haniya</span><span>A Creative Portfolio</span></footer>
+
+<script>
+const SB='https://kyumgelhzkblgtbxuyou.supabase.co',KEY='sb_publishable_uKfIMfgpk28ReR6wDlI78A_fS1axIZq';
+const SITE={name:'Ahmed Haniya',role:'Art Director & Designer',email:'hello@example.com',instagram:'https://instagram.com/',behance:'https://behance.net/',capabilities:'Brand Identity\nArt Direction\nEditorial',experience:'Selected Studios',hero_image:'',hero_slide_1:'',hero_slide_2:'',hero_slide_3:'',about_image:''};
+const DESC='A brand identity for a film studio that lives in motion. The mark is built from a single torn frame, held between sharp focus and blur, so the logo feels like a scene that has just been interrupted.\n\nThe system carries across posters, titles and social formats with one rule: keep the light low and let the red lead the eye.';
+const DEF=[['social-media','Social Media','Campaigns & Content',['Midnight Feed','Golden Hour','Pulse','Afterglow']],['logos','Logos','Brand Identity',['Shadows of Silence','Metropolis Redux','Kinetic Chaos','Nexus']],['profiles','Profiles','Company Profiles',['Atlas Group','Meridian','Orbit Studio','Harbor & Co']],['video','Video','Motion & Titles',['Static Dreams','Reel No. 9','Low Light','Frame Rate']]];
+let CATS=DEF.map(([id,name,sub,t])=>({id,name,sub,cover_url:'',items:t.map((title,i)=>({title,year:[2026,2025,2025,2024][i],client:'Nexus Films',role:'Branding & Direction',description:DESC,cover_url:'',images:[]}))}));
+let all=[];
+const PAL=[['#8a3a3a','#3a2a1a'],['#2a4a7a','#14142a'],['#9a5a3a','#2a2a14'],['#8a2a3a','#2a1414'],['#3a6a8a','#101828'],['#9a7a3a','#1a1a10']];
+const slug=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ph=(i,x='',u='')=>`<div class="ph ${x}" style="--a:${PAL[i%6][0]};--b:${PAL[i%6][1]}">${u?`<img src="${esc(u)}" alt="" loading="lazy">`:''}</div>`;
+const lines=s=>String(s||'').split('\n').map(x=>x.trim()).filter(Boolean);
+const $=document.getElementById('app'),pad2=n=>String(n).padStart(2,'0');
+
+const q=t=>fetch(`${SB}/rest/v1/${t}`,{headers:{apikey:KEY}}).then(r=>r.ok?r.json():Promise.reject());
+async function load(){
+ try{const [s,c,p,im]=await Promise.all([q('site_settings?select=*'),q('categories?select=*&order=sort'),q('projects?select=*&order=sort'),q('project_images?select=*&order=sort')]);
+  s.forEach(r=>{if(r.value!=null&&r.value!=='')SITE[r.key]=r.value});
+  if(c.length)CATS=c.map(x=>({...x,items:p.filter(y=>y.category_id===x.id).map(y=>({...y,images:im.filter(i=>i.project_id===y.id).map(i=>i.url)}))}));
+ }catch(e){}
+ all=CATS.flatMap(c=>c.items.map(p=>({...p,c,h:'project-'+slug(p.title)})));
+ const l=document.querySelector('.links a');if(l&&CATS[0])l.href='#'+CATS[0].id;
+}
+
+const isVid=u=>/\.(mp4|webm|mov|m4v)(\?|$)/i.test(u||'');
+const slidesOf=()=>[SITE.hero_slide_1||SITE.hero_image,SITE.hero_slide_2,SITE.hero_slide_3].filter(Boolean);
+function lb(urls,i){const o=document.createElement('div');o.className='lb';const im=document.createElement('img');o.appendChild(im);
+ const show=n=>{i=(n+urls.length)%urls.length;im.src=urls[i]};show(i);
+ const k=e=>{if(e.key==='Escape')close();if(e.key==='ArrowRight')show(i+1);if(e.key==='ArrowLeft')show(i-1)};
+ const close=()=>{o.remove();document.removeEventListener('keydown',k)};
+ o.onclick=e=>{e.target===im?show(i+1):close()};document.addEventListener('keydown',k);document.body.appendChild(o)}
+function home(){
+ const sl=slidesOf();
+ $.innerHTML=`<div class="fade">
+ <header class="hero"><div class="slides">${sl.length?sl.map(u=>`<div class="slide">${isVid(u)?`<video src="${esc(u)}" muted playsinline preload="metadata"></video>`:`<img src="${esc(u)}" alt="">`}</div>`).join(''):`<div class="slide on">${ph(0)}</div>`}</div>
+  ${sl.length>1?'<button class="arr l" aria-label="Previous">‹</button><button class="arr r" aria-label="Next">›</button>':''}
+  <h1>${esc(SITE.name)}</h1>
+  <div class="sub"><span>A Creative Portfolio</span><span>${esc(SITE.role)}</span></div>
+  <a class="play" href="#scenes">SCROLL TO PLAY</a>
+  ${sl.length>1?`<div class="dash">${sl.map((_,i)=>`<button aria-label="Slide ${i+1}"></button>`).join('')}</div>`:''}
+ </header>
+ <section class="pad" id="scenes"><h2 class="t">Choose a scene</h2><p class="note">${CATS.length} categories. Select one to see the work.</p></section>
+ <div class="strip"><div class="reel" id="reel">${CATS.map((c,i)=>`<a class="scene" href="#${c.id}">${ph(i+1,'',c.cover_url)}<div class="in"><div class="n">SCENE ${pad2(i+1)}</div><div class="nm">${esc(c.name)}</div><div class="ds">${esc(c.sub)}</div></div></a>`).join('')}</div></div>
+ <div class="track"><i id="head"></i></div><div class="cap">Playhead</div><div style="height:60px"></div></div>`;
+ const r=document.getElementById('reel'),h=document.getElementById('head');
+ r.onscroll=()=>{const m=r.scrollWidth-r.clientWidth;h.style.left=(m>0?r.scrollLeft/m*100:0)+'%'};
+ const el=[...$.querySelectorAll('.slide')];
+ if(sl.length===1){el[0].classList.add('on');const v=el[0].querySelector('video');if(v){v.loop=true;v.play().catch(()=>{})}}
+ if(sl.length>1){const dots=[...$.querySelectorAll('.dash button')];let cur=-1,tm;
+  const go=n=>{if(!el[0].isConnected)return;clearTimeout(tm);cur=(n+el.length)%el.length;
+   el.forEach((s,i)=>{s.classList.toggle('on',i===cur);const v=s.querySelector('video');if(v&&i!==cur)v.pause()});
+   dots.forEach((d,i)=>d.classList.toggle('on',i===cur));
+   const v=el[cur].querySelector('video');
+   if(v){v.currentTime=0;v.onended=()=>go(cur+1);v.onerror=()=>go(cur+1);v.play().catch(()=>{tm=setTimeout(()=>go(cur+1),6000)})}
+   else tm=setTimeout(()=>go(cur+1),6000)};
+  $.querySelector('.arr.l').onclick=()=>go(cur-1);$.querySelector('.arr.r').onclick=()=>go(cur+1);
+  dots.forEach((d,i)=>d.onclick=()=>go(i));
+  const hd=$.querySelector('.hero');let x0=0;hd.ontouchstart=e=>x0=e.touches[0].clientX;
+  hd.ontouchend=e=>{const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>50)go(dx<0?cur+1:cur-1)};
+  go(0)}
+}
+function category(id){
+ const c=CATS.find(x=>x.id===id);
+ $.innerHTML=`<div class="page fade"><h1>${esc(c.name)}</h1>
+ <div class="tabs">${CATS.map(t=>`<a href="#${t.id}" class="${t.id===id?'on':''}">${esc(t.name)}</a>`).join('')}</div>
+ <div class="grid">${c.items.map((p,i)=>`<a class="card" href="#project-${slug(p.title)}">${ph(i,'',p.cover_url)}<span class="no">NO. ${pad2(i+1)}</span><div class="tx"><h3>${esc(p.title)}</h3><div class="ct">${esc(c.name)} / ${p.year||''}</div></div></a>`).join('')}</div></div>`;
+}
+function project(h){
+ const k=all.findIndex(p=>p.h===h),p=all[k],nx=all[(k+1)%all.length],it=p.c.items.findIndex(x=>x.title===p.title);
+ const row=(l,v)=>v?`<dt>${l}</dt><dd>${esc(v)}</dd>`:'';
+ const paras=String(p.description||'').split(/\n\s*\n/).filter(Boolean);
+ const urls=p.images||[],gal=urls.length?urls.map((u,j)=>ph(j,'',u)):[0,1,2,3,4,5].map(j=>ph(it+j+1));
+ $.innerHTML=`<div class="fade">${ph(it,'phero',p.cover_url)}
+ <div class="proj"><h1>${esc(p.title)}</h1>
+  <div class="meta"><div><dl>${row('Director',SITE.name)}${row('Category',p.c.name)}</dl></div>
+  <div><dl>${row('Client',p.client)}${row('Year',p.year)}${row('Role',p.role)}</dl></div>
+  <div><dt style="font-size:9px;letter-spacing:.16em;color:var(--red);text-transform:uppercase">The concept</dt>${paras.map(t=>`<p>${esc(t)}</p>`).join('')}</div></div>
+  <div class="gal">${gal.join('')}</div>
+  <div class="pn"><a href="#${p.c.id}"><small>Back</small><span>${esc(p.c.name)}</span></a><a href="#${nx.h}"><small>Next project</small><span>${esc(nx.title)}</span></a></div>
+ </div></div>`;
+ if(urls.length)$.querySelectorAll('.gal .ph').forEach((e,j)=>e.onclick=()=>lb(urls,j));
+}
+function about(){
+ $.innerHTML=`<div class="about fade">${ph(2,'',SITE.about_image)}
+ <div class="credits"><h1>The End Credits</h1>
+  <div><h4>Designer & Art Director</h4><p>${esc(SITE.name)}</p></div>
+  <div><h4>Capabilities</h4>${lines(SITE.capabilities).map(x=>`<p>${esc(x)}</p>`).join('')}</div>
+  <div><h4>Experience</h4>${lines(SITE.experience).map(x=>`<p>${esc(x)}</p>`).join('')}</div>
+  <div><h4>Contact / Get in touch</h4><p><a href="mailto:${esc(SITE.email)}">${esc(SITE.email)}</a></p><p><a href="${esc(SITE.instagram)}" target="_blank" rel="noopener">Instagram</a></p><p><a href="${esc(SITE.behance)}" target="_blank" rel="noopener">Behance</a></p></div>
+ </div></div>`;
+}
+function route(){
+ const h=location.hash.slice(1)||'home';
+ if(h==='scenes')return;
+ if(h==='about')about();
+ else if(CATS.some(c=>c.id===h))category(h);
+ else if(all.some(p=>p.h===h))project(h);
+ else home();
+ window.scrollTo(0,0);
+}
+addEventListener('hashchange',route);
+load().then(route);
+</script>
+</body>
+</html>
