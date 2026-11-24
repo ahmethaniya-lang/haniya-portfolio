@@ -169,15 +169,26 @@ a:focus-visible{outline:1px solid var(--red);outline-offset:3px}
 .back{position:fixed;left:16px;bottom:16px;z-index:50;display:none;align-items:center;gap:8px;background:rgba(20,20,20,.85);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:var(--cream);border:1px solid #8a847a;padding:12px 18px;font:11px var(--sans);letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
 .back:hover{background:var(--cream);color:var(--bg)}
 .back b{font-size:16px;font-weight:400;line-height:1}
+/* whatsapp */
+.wa-ic{width:18px;height:18px;fill:currentColor;flex:none}
+.links .btn.wab{display:inline-flex;align-items:center;gap:8px;background:#25D366;border-color:#25D366;color:#0b1f12;font-weight:500}
+.links .btn.wab:hover{background:#1ebe5b;border-color:#1ebe5b;color:#0b1f12}
+.btn2.wa{display:inline-flex;align-items:center;gap:8px}
+.wa-float{position:fixed;right:18px;bottom:18px;z-index:60;width:58px;height:58px;border-radius:50%;background:#25D366;display:none;align-items:center;justify-content:center;box-shadow:0 6px 22px rgba(0,0,0,.45);animation:wapulse 2.6s ease-out infinite}
+.wa-float:hover{background:#1ebe5b;transform:scale(1.06)}
+.wa-float svg{width:32px;height:32px;fill:#fff}
+@keyframes wapulse{0%{box-shadow:0 6px 22px rgba(0,0,0,.45),0 0 0 0 rgba(37,211,102,.55)}70%,100%{box-shadow:0 6px 22px rgba(0,0,0,.45),0 0 0 16px rgba(37,211,102,0)}}
+@media(max-width:760px){.wa-float{right:14px;bottom:14px;width:54px;height:54px}}
 </style>
 </head>
 <body>
 <nav aria-label="Main">
   <a class="logo" href="#home">PORTFOLIO</a>
-  <div class="links"><a class="wk" href="#social-media">Work</a><a href="#about">About</a><a class="btn" id="wab" href="#" target="_blank" rel="noopener" style="display:none">WhatsApp</a></div>
+  <div class="links"><a class="wk" href="#social-media">Work</a><a href="#about">About</a><a class="btn wab" id="wab" href="#" target="_blank" rel="noopener" style="display:none">WhatsApp</a></div>
 </nav>
 <main id="app"><noscript><h1>Ahmed Haniya</h1><p>Art Director &amp; Designer. Brand identity, logo design, art direction and social media design projects.</p><p>Please enable JavaScript to view the portfolio.</p></noscript></main>
 <footer><span>© 2026 Ahmed Haniya</span><span>A Creative Portfolio</span></footer>
+<a class="wa-float" id="waf" href="#" target="_blank" rel="noopener" aria-label="WhatsApp"></a>
 <button class="back" id="back" aria-label="Back"><b>&larr;</b><span>Back</span></button>
 
 <script>
@@ -207,7 +218,10 @@ async function load(){
 
 const waNum=()=>String(SITE.whatsapp||'').replace(/\D/g,'').replace(/^00/,'');
 const waUrl=()=>waNum()?'https://wa.me/'+waNum():'';
-function setNav(){const b=document.getElementById('wab');if(!b)return;const u=waUrl();if(u){b.href=u;b.style.display=''}else b.style.display='none'}
+const WA_SVG='<svg class="wa-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>';
+function setNav(){const u=waUrl(),b=document.getElementById('wab'),f=document.getElementById('waf');
+ if(b){if(u){b.href=u;b.innerHTML=WA_SVG+'<span>WhatsApp</span>';b.style.display=''}else b.style.display='none'}
+ if(f){if(u){f.href=u;f.innerHTML=WA_SVG;f.style.display='flex'}else f.style.display='none'}}
 const isVid=u=>/\.(mp4|webm|mov|m4v)(\?|$)/i.test(u||'');
 const slidesOf=()=>[SITE.hero_slide_1||SITE.hero_image,SITE.hero_slide_2,SITE.hero_slide_3].filter(Boolean);
 let LBC=null;
@@ -239,7 +253,7 @@ function home(){
  <section class="pad" id="scenes"><h2 class="t">Choose a scene</h2><p class="note">${CATS.length} categories. Select one to see the work.</p></section>
  <div class="strip"><div class="reel" id="reel">${CATS.map((c,i)=>`<a class="scene" href="#${c.id}">${ph(i+1,'',c.cover_url,c.name+' — '+SITE.name)}<div class="in"><div class="n">SCENE ${pad2(i+1)}</div><div class="nm">${esc(c.name)}</div><div class="ds">${esc(c.sub)}</div></div></a>`).join('')}</div></div>
  <div class="track"><i id="head"></i></div><div class="cap">Playhead</div>
- <section class="teaser ${SITE.about_image?'':'nophoto'}">${SITE.about_image?ph(2,'',SITE.about_image,'Portrait of '+SITE.name):''}<div><div class="cap" style="color:var(--red)">About</div><h2 class="t" style="margin-top:6px">${esc(SITE.name)}</h2><p>${esc(SITE.bio||SITE.role)}</p><a class="btn2" href="#about">About me &rarr;</a>${waUrl()?`<a class="btn2 wa" href="${esc(waUrl())}" target="_blank" rel="noopener">WhatsApp</a>`:''}</div></section></div>`;
+ <section class="teaser ${SITE.about_image?'':'nophoto'}">${SITE.about_image?ph(2,'',SITE.about_image,'Portrait of '+SITE.name):''}<div><div class="cap" style="color:var(--red)">About</div><h2 class="t" style="margin-top:6px">${esc(SITE.name)}</h2><p>${esc(SITE.bio||SITE.role)}</p><a class="btn2" href="#about">About me &rarr;</a>${waUrl()?`<a class="btn2 wa" href="${esc(waUrl())}" target="_blank" rel="noopener">${WA_SVG}WhatsApp</a>`:''}</div></section></div>`;
  const r=document.getElementById('reel'),h=document.getElementById('head');
  r.onscroll=()=>{const m=r.scrollWidth-r.clientWidth;h.style.left=(m>0?r.scrollLeft/m*100:0)+'%'};
  const el=[...$.querySelectorAll('.slide')];
@@ -303,7 +317,7 @@ function about(){
   <div><h4>Designer & Art Director</h4><p>${esc(SITE.name)}</p></div>
   <div><h4>Capabilities</h4>${lines(SITE.capabilities).map(x=>`<p>${esc(x)}</p>`).join('')}</div>
   <div><h4>Experience</h4>${lines(SITE.experience).map(x=>`<p>${esc(x)}</p>`).join('')}</div>
-  <div><h4>Contact / Get in touch</h4>${waUrl()?`<p><a href="${esc(waUrl())}" target="_blank" rel="noopener">WhatsApp: +${esc(waNum())}</a></p>`:''}<p><a href="mailto:${esc(SITE.email)}">${esc(SITE.email)}</a></p><p><a href="${esc(SITE.instagram)}" target="_blank" rel="noopener">Instagram</a></p><p><a href="${esc(SITE.behance)}" target="_blank" rel="noopener">Behance</a></p>${waUrl()?`<p style="margin-top:18px"><a class="btn2 wa" href="${esc(waUrl())}" target="_blank" rel="noopener">Chat on WhatsApp</a></p>`:''}</div>
+  <div><h4>Contact / Get in touch</h4>${waUrl()?`<p><a href="${esc(waUrl())}" target="_blank" rel="noopener">WhatsApp: +${esc(waNum())}</a></p>`:''}<p><a href="mailto:${esc(SITE.email)}">${esc(SITE.email)}</a></p><p><a href="${esc(SITE.instagram)}" target="_blank" rel="noopener">Instagram</a></p><p><a href="${esc(SITE.behance)}" target="_blank" rel="noopener">Behance</a></p>${waUrl()?`<p style="margin-top:18px"><a class="btn2 wa" href="${esc(waUrl())}" target="_blank" rel="noopener">${WA_SVG}Chat on WhatsApp</a></p>`:''}</div>
  </div></div>`;
 }
 const old=h=>slug(h.slice(8))?all.find(p=>h.startsWith('project-')&&'project-'+slug(p.title)===h):null;
@@ -322,6 +336,37 @@ function seoLD(){const e=document.getElementById('ld');if(!e)return;try{const j=
  if(SITE.about_image)p.image=SITE.about_image;
  const sa=[SITE.instagram,SITE.behance].filter(u=>/^https?:\/\/(www\.)?(instagram|behance)\.[a-z]+\/.+/i.test(u||''));if(sa.length)p.sameAs=sa;
  const cp=lines(SITE.capabilities);if(cp.length)p.knowsAbout=cp;e.textContent=JSON.stringify(j)}catch(x){}}
+/* ---- visit analytics (stores: page, country code, device, time on page; no IP) ---- */
+const store=(k,v,s)=>{try{const o=s?sessionStorage:localStorage;if(v===undefined)return o.getItem(k);o.setItem(k,v)}catch(e){return null}};
+const uid=()=>crypto.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:r&3|8).toString(16)});
+const skipTrack=()=>store('ht_skip')==='1'||navigator.webdriver||/bot|crawl|spider|slurp|preview|headless/i.test(navigator.userAgent);
+const rpc=(fn,body,keep)=>fetch(`${SB}/rest/v1/rpc/${fn}`,{method:'POST',keepalive:!!keep,headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify(body)}).catch(()=>{});
+let CTRY=null;
+function country(){return CTRY||(CTRY=(async()=>{const c=store('ht_cc',undefined,1);if(c)return c;
+ const get=async u=>{const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),2500);try{return await (await fetch(u,{signal:ctl.signal})).json()}finally{clearTimeout(t)}};
+ let cc='';try{cc=(await get('https://api.country.is/')).country}catch(e){}
+ if(!cc)try{cc=(await get('https://ipapi.co/json/')).country_code}catch(e){}
+ cc=/^[A-Z]{2}$/.test(cc||'')?cc:'';if(cc)store('ht_cc',cc,1);return cc})())}
+let TV={id:null,acc:0,since:0,sent:0};
+const tvTick=()=>{TV.since=document.visibilityState==='visible'?Date.now():0};
+function tvFlush(){if(!TV.id)return;if(TV.since){TV.acc+=Date.now()-TV.since;TV.since=0}
+ const s=Math.round(TV.acc/1000);if(s>0&&s!==TV.sent){TV.sent=s;rpc('track_duration',{p_id:TV.id,p_secs:s},true)}}
+document.addEventListener('visibilitychange',()=>{document.visibilityState==='hidden'?tvFlush():tvTick()});
+addEventListener('pagehide',tvFlush);
+function track(h){if(skipTrack())return;tvFlush();
+ let kind,title,cat='',pid='';
+ const c=CATS.find(x=>x.id===h),p=all.find(x=>x.h===h);
+ if(h==='home'){kind='home';title='Home'}
+ else if(h==='about'){kind='about';title='About'}
+ else if(c){kind='category';title=c.name;cat=c.name}
+ else if(p){kind='project';title=p.title;cat=p.c.name;pid=String(p.id||'')}
+ else{TV={id:null,acc:0,since:0,sent:0};return}
+ const id=uid();TV={id,acc:0,since:0,sent:0};tvTick();
+ let vid=store('ht_vid');if(!vid){vid=uid();store('ht_vid',vid)}
+ let sid=store('ht_sid',undefined,1);if(!sid){sid=uid();store('ht_sid',sid,1)}
+ let ref='';try{const r=new URL(document.referrer);if(r.host!==location.host)ref=r.host}catch(e){}
+ const dev=/iPad|Tablet/i.test(navigator.userAgent)?'tablet':/Mobi|Android|iPhone/i.test(navigator.userAgent)?'mobile':'desktop';
+ country().then(cc=>rpc('track_view',{p_id:id,p_visitor:vid,p_session:sid,p_kind:kind,p_title:title,p_category:cat,p_project:pid,p_country:cc,p_device:dev,p_referrer:ref}))}
 function route(){
  const h=location.hash.slice(1)||'home';
  if(h==='scenes')return;
@@ -335,7 +380,7 @@ function route(){
  if(h==='about'||CATS.some(c=>c.id===h))to='home';
  else{const p=all.find(p=>p.h===h);if(p)to=p.c.id}
  bk.dataset.to=to||'';bk.style.display=to?'flex':'none';
- window.scrollTo(0,0);seoRoute(h);
+ window.scrollTo(0,0);seoRoute(h);track(h);
 }
 addEventListener('hashchange',route);
 load().then(route);

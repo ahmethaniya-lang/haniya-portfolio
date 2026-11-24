@@ -33,6 +33,17 @@ textarea{min-height:110px;resize:vertical}
 button:disabled{opacity:.3;cursor:default;border-color:var(--line)}
 .pdft{display:flex;align-items:center;justify-content:center;color:var(--red);font:600 20px Georgia,serif;letter-spacing:.08em}.gal small.fn{display:block;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mute);font-size:11px}
 .acts{display:flex;gap:6px;align-items:center}.mv{padding:7px 12px}.ord{color:var(--red);display:inline-block;width:26px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+.stat b{display:block;font:600 26px Georgia,serif}.stat small{color:var(--mute);font-size:12px}
+table.t{width:100%;border-collapse:collapse;font-size:14px}
+table.t th{text-align:left;color:var(--mute);font-weight:400;font-size:12px;padding:6px 8px 6px 0;border-bottom:1px solid var(--line)}
+table.t td{padding:8px 8px 8px 0;border-bottom:1px solid var(--line);vertical-align:middle}
+table.t tr:last-child td{border:0}
+table.t .n{text-align:right;white-space:nowrap;padding-right:0}
+.bar2{height:6px;border-radius:3px;background:var(--red);margin-top:4px;min-width:2px}
+.scroll{overflow-x:auto}
 @media(max-width:600px){.row{grid-template-columns:1fr}}
 </style>
 </head>
@@ -78,9 +89,9 @@ function login(){app.innerHTML=`<div class="login box"><h1>HANIYA ADMIN</h1><lab
  $('#go').onclick=go;$('#pw').onkeydown=e=>{if(e.key==='Enter')go()}}
 
 function render(){
- const tabs=[['site','Site'],['cats','Categories'],['projects','Projects']].map(([k,n])=>`<button class="${tab===k?'on':''}" onclick="tab='${k}';editing=null;render()">${n}</button>`).join('');
+ const tabs=[['site','Site'],['cats','Categories'],['projects','Projects'],['stats','Visits']].map(([k,n])=>`<button class="${tab===k?'on':''}" onclick="tab='${k}';editing=null;render()">${n}</button>`).join('');
  app.innerHTML=`<div class="bar"><h1>HANIYA ADMIN</h1><div><a class="btn" href="/" target="_blank" style="text-decoration:none">View site</a> <button onclick="sb.auth.signOut().then(login)">Sign out</button></div></div><div class="tabs">${tabs}</div><div id="v"></div>`;
- ({site:siteV,cats:catsV,projects:projV})[tab]()}
+ ({site:siteV,cats:catsV,projects:projV,stats:statsV})[tab]()}
 
 const F=[['name','Name'],['role','Role'],['email','Email'],['whatsapp','WhatsApp number (with country code, digits only, e.g. 970599123456)'],['instagram','Instagram link'],['behance','Behance link']];
 function siteV(){$('#v').innerHTML=`<div class="box"><h2>Site</h2>${[1,2,3].map(n=>imgField('s_hero_slide_'+n,'Hero slide '+n+' (image or video)',(n===1?S.hero_slide_1||S.hero_image:S['hero_slide_'+n])||'','image/*,video/*')).join('')}${imgField('s_about_image','About photo',S.about_image||'')}
@@ -132,7 +143,38 @@ async function mv(id,d){const y=scrollY,p=P.find(x=>x.id===id);
 async function delImg(id){snap();await sb.from('project_images').delete().eq('id',id);await loadAll();render()}
 async function delP(id){if(!confirm('Delete this project and its gallery?'))return;await sb.from('projects').delete().eq('id',id);T('Deleted');await loadAll();editing=null;render()}
 
-async function start(){const {data:{session}}=await sb.auth.getSession();if(!session)return login();await loadAll();render()}
+/* ---- Visits ---- */
+let RANGE=7;
+const fmtDur=s=>{s=Math.round(s||0);return s<60?s+'s':Math.floor(s/60)+'m '+String(s%60).padStart(2,'0')+'s'};
+const flag=cc=>/^[A-Z]{2}$/.test(cc||'')?String.fromCodePoint(...[...cc].map(c=>127397+c.charCodeAt(0))):'🌐';
+let RN=null;try{RN=new Intl.DisplayNames(['en'],{type:'region'})}catch(e){}
+const cname=cc=>!cc?'Unknown':(()=>{try{return RN?RN.of(cc):cc}catch(e){return cc}})();
+async function loadStats(){
+ const d=new Date();if(RANGE===1)d.setHours(0,0,0,0);else d.setTime(Date.now()-RANGE*864e5);
+ let rows=[],from=0;
+ while(true){const {data,error}=await sb.from('analytics_views').select('created_at,visitor_id,session_id,kind,title,category,country,device,referrer,duration').gte('created_at',d.toISOString()).order('created_at',{ascending:false}).range(from,from+999);
+  if(error)throw error;rows=rows.concat(data);if(data.length<1000||rows.length>=20000)break;from+=1000}
+ return rows}
+function group(rows,keyf){const m=new Map();rows.forEach(r=>{const k=keyf(r),g=m.get(k)||{k,n:0,vis:new Set(),dur:0,dn:0,r};g.n++;g.vis.add(r.visitor_id);if(r.duration>0){g.dur+=r.duration;g.dn++}m.set(k,g)});return [...m.values()].sort((a,b)=>b.n-a.n)}
+async function statsV(){const v=$('#v');v.innerHTML='<div class="box"><small>Loading…</small></div>';
+ let rows;try{rows=await loadStats()}catch(x){if(tab!=='stats')return;v.innerHTML=`<div class="box"><h2>Visits</h2><p>Could not load stats: ${esc(x.message)}</p><p><small>If you haven't yet, run analytics.sql in Supabase (SQL Editor).</small></p></div>`;return}
+ if(tab!=='stats')return;
+ const vis=new Set(rows.map(r=>r.visitor_id)).size,ses=new Set(rows.map(r=>r.session_id)).size,tim=rows.filter(r=>r.duration>0),avg=tim.length?tim.reduce((a,r)=>a+r.duration,0)/tim.length:0;
+ const chips=[[1,'Today'],[7,'7 days'],[30,'30 days'],[90,'90 days']].map(([d,n])=>`<button class="${RANGE===d?'on':''}" onclick="RANGE=${d};statsV()">${n}</button>`).join('');
+ const cs=group(rows,r=>r.country||''),cmax=cs[0]?cs[0].n:1;
+ const pg=group(rows.filter(r=>r.kind==='project'),r=>r.category+'|'+r.title),pmax=pg[0]?pg[0].n:1;
+ const oth=group(rows.filter(r=>r.kind!=='project'),r=>r.kind+'|'+r.title);
+ const kindName={home:'Home',about:'About',category:'Category'};
+ const empty='<small>No visits yet.</small>';
+ v.innerHTML=`<div class="chips">${chips}</div>
+ <div class="cards"><div class="stat"><b>${rows.length}</b><small>Page views</small></div><div class="stat"><b>${vis}</b><small>Visitors</small></div><div class="stat"><b>${ses}</b><small>Sessions</small></div><div class="stat"><b>${fmtDur(avg)}</b><small>Avg. time on page</small></div></div>
+ <div class="box"><h2>Countries</h2>${cs.length?`<div class="scroll"><table class="t"><tr><th>Country</th><th class="n">Views</th><th class="n">Visitors</th></tr>${cs.map(g=>`<tr><td>${flag(g.k)} ${esc(cname(g.k))}<div class="bar2" style="width:${Math.max(2,g.n/cmax*100)}%"></div></td><td class="n">${g.n}</td><td class="n">${g.vis.size}</td></tr>`).join('')}</table></div>`:empty}</div>
+ <div class="box"><h2>Projects opened</h2>${pg.length?`<div class="scroll"><table class="t"><tr><th>Project</th><th class="n">Views</th><th class="n">Visitors</th><th class="n">Avg. time</th></tr>${pg.map(g=>`<tr><td>${esc(g.r.title)} <small style="color:var(--mute)">/ ${esc(g.r.category)}</small><div class="bar2" style="width:${Math.max(2,g.n/pmax*100)}%"></div></td><td class="n">${g.n}</td><td class="n">${g.vis.size}</td><td class="n">${g.dn?fmtDur(g.dur/g.dn):'–'}</td></tr>`).join('')}</table></div>`:empty}</div>
+ <div class="box"><h2>Other pages</h2>${oth.length?`<div class="scroll"><table class="t"><tr><th>Page</th><th class="n">Views</th><th class="n">Visitors</th><th class="n">Avg. time</th></tr>${oth.map(g=>`<tr><td>${esc(g.r.title)} <small style="color:var(--mute)">/ ${kindName[g.r.kind]||g.r.kind}</small></td><td class="n">${g.n}</td><td class="n">${g.vis.size}</td><td class="n">${g.dn?fmtDur(g.dur/g.dn):'–'}</td></tr>`).join('')}</table></div>`:empty}</div>
+ <div class="box"><h2>Latest visits</h2>${rows.length?`<div class="scroll"><table class="t"><tr><th>When</th><th>Page</th><th>Country</th><th>Device</th><th class="n">Time</th></tr>${rows.slice(0,40).map(r=>`<tr><td>${esc(new Date(r.created_at).toLocaleString([], {dateStyle:'short',timeStyle:'short'}))}</td><td>${esc(r.title||r.kind)}${r.referrer?` <small style="color:var(--mute)">← ${esc(r.referrer)}</small>`:''}</td><td>${flag(r.country)} ${esc(r.country||'')}</td><td>${esc(r.device||'')}</td><td class="n">${r.duration?fmtDur(r.duration):'–'}</td></tr>`).join('')}</table></div>`:empty}</div>
+ <small style="color:var(--mute)">Your own visits are not counted on the browser where you've signed in to this admin.</small>`}
+
+async function start(){const {data:{session}}=await sb.auth.getSession();if(!session)return login();try{localStorage.setItem('ht_skip','1')}catch(e){}await loadAll();render()}
 start();
 </script>
 </body>
