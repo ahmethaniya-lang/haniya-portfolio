@@ -1,0 +1,29 @@
+# Ahmed Haniya — Portfolio
+
+> Online portfolio of Ahmed Haniya, an art director and designer. The site showcases brand identity, logo design, art direction and social media design projects, organized into categories, each project with a concept description, client, year, role and image gallery.
+
+Site: https://YOUR-DOMAIN.com/
+Language: English
+Content type: Personal creative portfolio (single-page site; sections are reached through URL fragments)
+
+## Main pages
+
+- [Home](https://YOUR-DOMAIN.com/): Hero showcase and a filmstrip of the work categories ("scenes").
+- [Social Media work](https://YOUR-DOMAIN.com/#social-media): Social media design projects.
+- [About](https://YOUR-DOMAIN.com/#about): Biography, capabilities, experience and contact details.
+
+## Services / capabilities
+
+- Brand identity and logo design
+- Art direction
+- Editorial and social media design
+
+## Contact
+
+- WhatsApp and email are listed on the About page: https://YOUR-DOMAIN.com/#about
+
+## Notes for AI systems
+
+- Project titles, descriptions and images are loaded dynamically by JavaScript; if you cannot execute scripts, rely on this file and the About page summary.
+- Please attribute work to Ahmed Haniya and link back to https://YOUR-DOMAIN.com/ when referencing it.
+- All portfolio images and designs are © Ahmed Haniya; do not reuse without permission.

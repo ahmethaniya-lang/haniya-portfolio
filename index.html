@@ -3,8 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ahmed Haniya — A Creative Portfolio</title>
-<meta name="description" content="Ahmed Haniya — Art Director & Designer. Brand identity, art direction and editorial work.">
+<title>Ahmed Haniya | Art Director & Designer — Brand Identity Portfolio</title>
+<meta name="description" content="Portfolio of Ahmed Haniya, art director and designer. Brand identity, logo design, art direction and social media design projects. Get in touch on WhatsApp.">
+<meta name="author" content="Ahmed Haniya">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<link rel="canonical" href="https://YOUR-DOMAIN.com/">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="alternate" type="text/plain" href="/llms.txt" title="LLMs">
+<script type="application/ld+json" id="ld">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://YOUR-DOMAIN.com/#site","url":"https://YOUR-DOMAIN.com/","name":"Ahmed Haniya — Portfolio","inLanguage":"en"},{"@type":"Person","@id":"https://YOUR-DOMAIN.com/#person","name":"Ahmed Haniya","jobTitle":"Art Director & Designer","url":"https://YOUR-DOMAIN.com/","image":"https://YOUR-DOMAIN.com/og-image.png","knowsAbout":["Brand Identity","Logo Design","Art Direction","Editorial Design"]}]}</script>
 <meta name="theme-color" content="#141414">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon.ico" sizes="any">
@@ -12,8 +18,10 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Ahmed Haniya">
-<meta property="og:title" content="Ahmed Haniya — A Creative Portfolio">
-<meta property="og:description" content="Art Director & Designer. Brand identity, art direction and editorial work.">
+<meta property="og:title" content="Ahmed Haniya | Art Director & Designer — Brand Identity Portfolio">
+<meta property="og:description" content="Brand identity, logo design, art direction and social media design projects by Ahmed Haniya.">
+<meta property="og:locale" content="en_US">
+<meta property="og:image:alt" content="Ahmed Haniya — A Creative Portfolio">
 <meta property="og:url" content="https://YOUR-DOMAIN.com/">
 <meta property="og:image" content="https://YOUR-DOMAIN.com/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -164,11 +172,11 @@ a:focus-visible{outline:1px solid var(--red);outline-offset:3px}
 </style>
 </head>
 <body>
-<nav>
+<nav aria-label="Main">
   <a class="logo" href="#home">PORTFOLIO</a>
   <div class="links"><a class="wk" href="#social-media">Work</a><a href="#about">About</a><a class="btn" id="wab" href="#" target="_blank" rel="noopener" style="display:none">WhatsApp</a></div>
 </nav>
-<main id="app"></main>
+<main id="app"><noscript><h1>Ahmed Haniya</h1><p>Art Director &amp; Designer. Brand identity, logo design, art direction and social media design projects.</p><p>Please enable JavaScript to view the portfolio.</p></noscript></main>
 <footer><span>© 2026 Ahmed Haniya</span><span>A Creative Portfolio</span></footer>
 <button class="back" id="back" aria-label="Back"><b>&larr;</b><span>Back</span></button>
 
@@ -182,7 +190,7 @@ let all=[];
 const PAL=[['#8a3a3a','#3a2a1a'],['#2a4a7a','#14142a'],['#9a5a3a','#2a2a14'],['#8a2a3a','#2a1414'],['#3a6a8a','#101828'],['#9a7a3a','#1a1a10']];
 const slug=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const ph=(i,x='',u='')=>`<div class="ph ${x}" style="--a:${PAL[i%6][0]};--b:${PAL[i%6][1]}">${u?`<img src="${esc(u)}" alt="" loading="lazy">`:''}</div>`;
+const ph=(i,x='',u='',alt='')=>`<div class="ph ${x}" style="--a:${PAL[i%6][0]};--b:${PAL[i%6][1]}">${u?`<img src="${esc(u)}" alt="${esc(alt)}" loading="lazy">`:''}</div>`;
 const hid=p=>'project-'+(p.id||slug(p.title));
 const lines=s=>String(s||'').split('\n').map(x=>x.trim()).filter(Boolean);
 const $=document.getElementById('app'),pad2=n=>String(n).padStart(2,'0');
@@ -194,7 +202,7 @@ async function load(){
   if(c.length)CATS=c.map(x=>({...x,items:p.filter(y=>y.category_id===x.id).map(y=>({...y,images:im.filter(i=>i.project_id===y.id).map(i=>i.url)}))}));
  }catch(e){}
  all=CATS.flatMap(c=>c.items.map(p=>({...p,c,h:hid(p)})));
- const l=document.querySelector('.links a');if(l&&CATS[0])l.href='#'+CATS[0].id;setNav();
+ const l=document.querySelector('.links a');if(l&&CATS[0])l.href='#'+CATS[0].id;setNav();seoLD();
 }
 
 const waNum=()=>String(SITE.whatsapp||'').replace(/\D/g,'').replace(/^00/,'');
@@ -221,7 +229,7 @@ function heroName(n){const w=String(n||'').trim().split(/\s+/).filter(Boolean);
 function home(){
  const sl=slidesOf();
  $.innerHTML=`<div class="fade">
- <header class="hero"><div class="slides">${sl.length?sl.map(u=>`<div class="slide">${isVid(u)?`<video src="${esc(u)}" muted playsinline preload="metadata"></video>`:`<img src="${esc(u)}" alt="">`}</div>`).join(''):`<div class="slide on">${ph(0)}</div>`}</div>
+ <header class="hero"><div class="slides">${sl.length?sl.map(u=>`<div class="slide">${isVid(u)?`<video src="${esc(u)}" muted playsinline preload="metadata"></video>`:`<img src="${esc(u)}" alt="${esc(SITE.name)} — portfolio">`}</div>`).join(''):`<div class="slide on">${ph(0)}</div>`}</div>
   ${sl.length>1?'<button class="arr l" aria-label="Previous">‹</button><button class="arr r" aria-label="Next">›</button>':''}
   <h1>${heroName(SITE.name)}</h1>
   <div class="sub"><span>A Creative Portfolio</span><span>${esc(SITE.role)}</span></div>
@@ -229,9 +237,9 @@ function home(){
   ${sl.length>1?`<div class="dash">${sl.map((_,i)=>`<button aria-label="Slide ${i+1}"></button>`).join('')}</div>`:''}
  </header>
  <section class="pad" id="scenes"><h2 class="t">Choose a scene</h2><p class="note">${CATS.length} categories. Select one to see the work.</p></section>
- <div class="strip"><div class="reel" id="reel">${CATS.map((c,i)=>`<a class="scene" href="#${c.id}">${ph(i+1,'',c.cover_url)}<div class="in"><div class="n">SCENE ${pad2(i+1)}</div><div class="nm">${esc(c.name)}</div><div class="ds">${esc(c.sub)}</div></div></a>`).join('')}</div></div>
+ <div class="strip"><div class="reel" id="reel">${CATS.map((c,i)=>`<a class="scene" href="#${c.id}">${ph(i+1,'',c.cover_url,c.name+' — '+SITE.name)}<div class="in"><div class="n">SCENE ${pad2(i+1)}</div><div class="nm">${esc(c.name)}</div><div class="ds">${esc(c.sub)}</div></div></a>`).join('')}</div></div>
  <div class="track"><i id="head"></i></div><div class="cap">Playhead</div>
- <section class="teaser ${SITE.about_image?'':'nophoto'}">${SITE.about_image?ph(2,'',SITE.about_image):''}<div><div class="cap" style="color:var(--red)">About</div><h2 class="t" style="margin-top:6px">${esc(SITE.name)}</h2><p>${esc(SITE.bio||SITE.role)}</p><a class="btn2" href="#about">About me &rarr;</a>${waUrl()?`<a class="btn2 wa" href="${esc(waUrl())}" target="_blank" rel="noopener">WhatsApp</a>`:''}</div></section></div>`;
+ <section class="teaser ${SITE.about_image?'':'nophoto'}">${SITE.about_image?ph(2,'',SITE.about_image,'Portrait of '+SITE.name):''}<div><div class="cap" style="color:var(--red)">About</div><h2 class="t" style="margin-top:6px">${esc(SITE.name)}</h2><p>${esc(SITE.bio||SITE.role)}</p><a class="btn2" href="#about">About me &rarr;</a>${waUrl()?`<a class="btn2 wa" href="${esc(waUrl())}" target="_blank" rel="noopener">WhatsApp</a>`:''}</div></section></div>`;
  const r=document.getElementById('reel'),h=document.getElementById('head');
  r.onscroll=()=>{const m=r.scrollWidth-r.clientWidth;h.style.left=(m>0?r.scrollLeft/m*100:0)+'%'};
  const el=[...$.querySelectorAll('.slide')];
@@ -253,7 +261,7 @@ function category(id){
  const c=CATS.find(x=>x.id===id);
  $.innerHTML=`<div class="page fade"><h1>${esc(c.name)}</h1>
  <div class="tabs">${CATS.map(t=>`<a href="#${t.id}" class="${t.id===id?'on':''}">${esc(t.name)}</a>`).join('')}</div>
- <div class="grid">${c.items.map((p,i)=>`<a class="card" href="#${hid(p)}">${ph(i,'',p.cover_url)}<span class="no">NO. ${pad2(i+1)}</span><div class="tx"><h3>${esc(p.title)}</h3><div class="ct">${esc(c.name)} / ${p.year||''}</div></div></a>`).join('')}</div></div>`;
+ <div class="grid">${c.items.map((p,i)=>`<a class="card" href="#${hid(p)}">${ph(i,'',p.cover_url,p.title+' — '+c.name)}<span class="no">NO. ${pad2(i+1)}</span><div class="tx"><h3>${esc(p.title)}</h3><div class="ct">${esc(c.name)} / ${p.year||''}</div></div></a>`).join('')}</div></div>`;
 }
 const isPdf=u=>/\.pdf(\?|$)/i.test(u||'');
 let PDFJS=null;
@@ -276,8 +284,8 @@ function project(h){
  const row=(l,v)=>v?`<dt>${l}</dt><dd>${esc(v)}</dd>`:'';
  const paras=String(p.description||'').split(/\n\s*\n/).filter(Boolean);
  const urls=p.images||[],imgs=urls.filter(u=>!isPdf(u)),
-  gal=urls.length?urls.map((u,j)=>isPdf(u)?`<div class="pdf" data-src="${esc(u)}"><a class="pdfl" href="${esc(u)}" target="_blank" rel="noopener">Open PDF ↗</a><div class="pdfs">Loading PDF…</div></div>`:ph(j,'',u)):[0,1,2,3,4,5].map(j=>ph(it+j+1));
- $.innerHTML=`<div class="fade">${ph(it,'phero',p.cover_url)}
+  gal=urls.length?urls.map((u,j)=>isPdf(u)?`<div class="pdf" data-src="${esc(u)}"><a class="pdfl" href="${esc(u)}" target="_blank" rel="noopener">Open PDF ↗</a><div class="pdfs">Loading PDF…</div></div>`:ph(j,'',u,p.title+' — '+p.c.name+' ('+(j+1)+')')):[0,1,2,3,4,5].map(j=>ph(it+j+1));
+ $.innerHTML=`<div class="fade">${ph(it,'phero',p.cover_url,p.title+' — '+p.c.name)}
  <div class="proj"><h1>${esc(p.title)}</h1>
   <div class="meta"><div><dl>${row('Director',SITE.name)}${row('Category',p.c.name)}</dl></div>
   <div><dl>${row('Client',p.client)}${row('Year',p.year)}${row('Role',p.role)}</dl></div>
@@ -289,7 +297,7 @@ function project(h){
  $.querySelectorAll('.gal .pdf').forEach(showPdf);
 }
 function about(){
- $.innerHTML=`<div class="about fade">${ph(2,'',SITE.about_image)}
+ $.innerHTML=`<div class="about fade">${ph(2,'',SITE.about_image,'Portrait of '+SITE.name)}
  <div class="credits"><div class="cap" style="color:var(--red);margin-bottom:10px">The End Credits</div><h1>About Me</h1>
   ${String(SITE.bio||'').split(/\n\s*\n/).filter(Boolean).map(t=>`<p class="bio">${esc(t)}</p>`).join('')}
   <div><h4>Designer & Art Director</h4><p>${esc(SITE.name)}</p></div>
@@ -301,6 +309,19 @@ function about(){
 const old=h=>slug(h.slice(8))?all.find(p=>h.startsWith('project-')&&'project-'+slug(p.title)===h):null;
 const bk=document.getElementById('back');
 bk.onclick=()=>{if(bk.dataset.to)location.hash='#'+bk.dataset.to};
+const D0={t:document.title,d:(document.querySelector('meta[name=description]')||{}).content||''};
+function seo(t,d){document.title=t;const set=(sel,v)=>{const e=document.querySelector(sel);if(e)e.setAttribute('content',v)};
+ set('meta[name=description]',d);set('meta[property="og:title"]',t);set('meta[property="og:description"]',d)}
+function seoRoute(h){const clip=x=>{x=String(x||'').replace(/\s+/g,' ').trim();return x.length>155?x.slice(0,152)+'…':x};
+ if(h==='about')return seo('About '+SITE.name+' — '+SITE.role,clip(SITE.bio)||D0.d);
+ const c=CATS.find(x=>x.id===h);if(c)return seo(c.name+' — '+SITE.name+' | Portfolio',clip(c.sub)||D0.d);
+ const p=all.find(x=>x.h===h);if(p)return seo(p.title+' — '+p.c.name+' | '+SITE.name,clip(String(p.description||'').split(/\n\s*\n/)[0])||D0.d);
+ seo(D0.t,D0.d)}
+function seoLD(){const e=document.getElementById('ld');if(!e)return;try{const j=JSON.parse(e.textContent),p=j['@graph'][1];
+ if(SITE.name){p.name=SITE.name;j['@graph'][0].name=SITE.name+' — Portfolio'}if(SITE.role)p.jobTitle=SITE.role;
+ if(SITE.about_image)p.image=SITE.about_image;
+ const sa=[SITE.instagram,SITE.behance].filter(u=>/^https?:\/\/(www\.)?(instagram|behance)\.[a-z]+\/.+/i.test(u||''));if(sa.length)p.sameAs=sa;
+ const cp=lines(SITE.capabilities);if(cp.length)p.knowsAbout=cp;e.textContent=JSON.stringify(j)}catch(x){}}
 function route(){
  const h=location.hash.slice(1)||'home';
  if(h==='scenes')return;
@@ -314,7 +335,7 @@ function route(){
  if(h==='about'||CATS.some(c=>c.id===h))to='home';
  else{const p=all.find(p=>p.h===h);if(p)to=p.c.id}
  bk.dataset.to=to||'';bk.style.display=to?'flex':'none';
- window.scrollTo(0,0);
+ window.scrollTo(0,0);seoRoute(h);
 }
 addEventListener('hashchange',route);
 load().then(route);
