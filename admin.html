@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Admin — Haniya</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{--bg:#141414;--card:#1c1c1c;--line:#2e2e2e;--cream:#f1e8d8;--red:#d2453b;--mute:#9a948a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--cream);font:15px/1.5 system-ui,sans-serif;padding:24px}
+.wrap{max-width:860px;margin:0 auto}
+h1{font:600 22px Georgia,serif;letter-spacing:.1em;margin-bottom:18px}
+h2{font:600 18px Georgia,serif;margin:6px 0 16px}
+.bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.tabs{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+button,.btn{background:var(--card);color:var(--cream);border:1px solid var(--line);padding:9px 16px;border-radius:6px;cursor:pointer;font:inherit}
+button:hover{border-color:var(--cream)}
+button.on,button.pri{background:var(--red);border-color:var(--red);color:#fff}
+button.del{color:#ff7b70}
+.box{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:18px;margin-bottom:16px}
+label{display:block;color:var(--mute);font-size:12px;margin:12px 0 4px}
+input,textarea,select{width:100%;background:#101010;color:var(--cream);border:1px solid var(--line);border-radius:6px;padding:10px;font:inherit}
+textarea{min-height:110px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.thumb{width:140px;height:90px;object-fit:cover;border-radius:6px;background:#101010;border:1px solid var(--line);display:block;margin-bottom:6px}
+.gal{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}.gal div{text-align:center}.gal .thumb{margin-bottom:4px}
+.list{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.list:last-child{border:0}.list small{color:var(--mute)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--cream);color:#111;padding:10px 18px;border-radius:6px;z-index:9}
+.login{max-width:360px;margin:12vh auto}
+@media(max-width:600px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+const SB='https://kyumgelhzkblgtbxuyou.supabase.co',KEY='sb_publishable_uKfIMfgpk28ReR6wDlI78A_fS1axIZq';
+const sb=supabase.createClient(SB,KEY);
+const $=s=>document.querySelector(s),app=$('#app');
+let S={},C=[],P=[],I=[],tab='site',editing=null;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const T=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)};
+
+function shrink(f){return new Promise(r=>{if(!f.type.startsWith('image/')||f.type==='image/svg+xml'||f.type==='image/gif')return r(f);
+ const im=new Image();im.onload=()=>{const k=Math.min(1,2000/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
+ c.getContext('2d').drawImage(im,0,0,c.width,c.height);c.toBlob(b=>r(b?new File([b],'x.jpg',{type:'image/jpeg'}):f),'image/jpeg',.86)};im.onerror=()=>r(f);im.src=URL.createObjectURL(f)})}
+async function up(f,dir){f=await shrink(f);const ext=(f.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
+ const path=`${dir}/${Date.now()}-${Math.random().toString(36).slice(2,7)}.${ext}`;
+ const {error}=await sb.storage.from('media').upload(path,f,{cacheControl:'31536000',contentType:f.type});
+ if(error)throw error;return sb.storage.from('media').getPublicUrl(path).data.publicUrl}
+
+const imgField=(id,label,url)=>`<label>${label}</label><img class="thumb" id="pv_${id}" src="${esc(url)}" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'">
+<input type="hidden" id="${id}" value="${esc(url)}"><input type="file" accept="image/*" data-t="${id}">`;
+document.addEventListener('change',async e=>{const el=e.target;if(!el.dataset.t||!el.files[0])return;
+ try{T('Uploading…');const u=await up(el.files[0],el.dataset.t.startsWith('p_')?'projects':'site');$('#'+el.dataset.t).value=u;$('#pv_'+el.dataset.t).src=u;T('Uploaded — press Save')}catch(x){T(x.message)}});
+
+async function loadAll(){const [s,c,p,i]=await Promise.all([sb.from('site_settings').select('*'),sb.from('categories').select('*').order('sort'),sb.from('projects').select('*').order('sort'),sb.from('project_images').select('*').order('sort')]);
+ S={};(s.data||[]).forEach(r=>S[r.key]=r.value);C=c.data||[];P=p.data||[];I=i.data||[]}
+
+function login(){app.innerHTML=`<div class="login box"><h1>HANIYA ADMIN</h1><label>Email</label><input id="em" type="email" autocomplete="username"><label>Password</label><input id="pw" type="password" autocomplete="current-password"><br><br><button class="pri" id="go" style="width:100%">Sign in</button></div>`;
+ const go=async()=>{const {error}=await sb.auth.signInWithPassword({email:$('#em').value.trim(),password:$('#pw').value});if(error)return T(error.message);start()};
+ $('#go').onclick=go;$('#pw').onkeydown=e=>e.key==='Enter'&&go()}
+
+function render(){
+ const tabs=[['site','Site'],['cats','Categories'],['projects','Projects']].map(([k,n])=>`<button class="${tab===k?'on':''}" onclick="tab='${k}';editing=null;render()">${n}</button>`).join('');
+ app.innerHTML=`<div class="bar"><h1>HANIYA ADMIN</h1><div><a class="btn" href="/" target="_blank" style="text-decoration:none">View site</a> <button onclick="sb.auth.signOut().then(login)">Sign out</button></div></div><div class="tabs">${tabs}</div><div id="v"></div>`;
+ ({site:siteV,cats:catsV,projects:projV})[tab]()}
+
+const F=[['name','Name'],['role','Role'],['email','Email'],['instagram','Instagram link'],['behance','Behance link']];
+function siteV(){$('#v').innerHTML=`<div class="box"><h2>Site</h2>${imgField('s_hero_image','Hero image (home page)',S.hero_image||'')}${imgField('s_about_image','About photo',S.about_image||'')}
+ ${F.map(([k,n])=>`<label>${n}</label><input id="s_${k}" value="${esc(S[k])}">`).join('')}
+ <label>Capabilities (one per line)</label><textarea id="s_capabilities">${esc(S.capabilities)}</textarea>
+ <label>Experience (one per line)</label><textarea id="s_experience">${esc(S.experience)}</textarea><br><br><button class="pri" onclick="saveSite()">Save</button></div>`}
+async function saveSite(){const keys=[...F.map(f=>f[0]),'capabilities','experience','hero_image','about_image'];
+ const {error}=await sb.from('site_settings').upsert(keys.map(k=>({key:k,value:$('#s_'+k).value})),{onConflict:'key'});
+ if(error)return T(error.message);T('Saved');await loadAll()}
+
+function catsV(){$('#v').innerHTML=C.map(c=>`<div class="box"><h2>${esc(c.name)}</h2><div class="row"><div><label>Name</label><input id="c_name_${c.id}" value="${esc(c.name)}"></div><div><label>Subtitle</label><input id="c_sub_${c.id}" value="${esc(c.sub)}"></div></div>
+ ${imgField('c_cover_'+c.id,'Cover image (home page filmstrip)',c.cover_url||'')}<br><br><button class="pri" onclick="saveCat('${c.id}')">Save</button></div>`).join('')}
+async function saveCat(id){const {error}=await sb.from('categories').update({name:$('#c_name_'+id).value,sub:$('#c_sub_'+id).value,cover_url:$('#c_cover_'+id).value}).eq('id',id);
+ if(error)return T(error.message);T('Saved');await loadAll()}
+
+function projV(){
+ if(!editing){$('#v').innerHTML=`<div class="box"><div class="bar"><h2>Projects</h2><button class="pri" onclick="newP()">+ New project</button></div>${P.map(p=>`<div class="list"><div>${esc(p.title)}<br><small>${esc((C.find(c=>c.id===p.category_id)||{}).name)} / ${p.year||''}</small></div><button onclick="editP('${p.id}')">Edit</button></div>`).join('')||'<small>No projects yet.</small>'}</div>`;return}
+ const p=editing,imgs=I.filter(i=>i.project_id===p.id);
+ $('#v').innerHTML=`<div class="box"><h2>${p.id?'Edit project':'New project'}</h2>
+ <div class="row"><div><label>Title</label><input id="p_title" value="${esc(p.title)}"></div><div><label>Category</label><select id="p_category_id">${C.map(c=>`<option value="${c.id}" ${c.id===p.category_id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div></div>
+ <div class="row"><div><label>Year</label><input id="p_year" type="number" value="${p.year||''}"></div><div><label>Order (1 = first)</label><input id="p_sort" type="number" value="${p.sort||0}"></div></div>
+ <div class="row"><div><label>Client</label><input id="p_client" value="${esc(p.client)}"></div><div><label>Role</label><input id="p_role" value="${esc(p.role)}"></div></div>
+ <label>Description (blank line between paragraphs)</label><textarea id="p_description">${esc(p.description)}</textarea>
+ ${imgField('p_cover_url','Cover image',p.cover_url||'')}
+ <label>Gallery images</label><div class="gal">${imgs.map(i=>`<div><img class="thumb" src="${esc(i.url)}"><button class="del" onclick="delImg('${i.id}')">Delete</button></div>`).join('')||'<small>No images yet.</small>'}</div>
+ <label>Add gallery images (you can pick several)</label><input id="gal" type="file" accept="image/*" multiple><br><br>
+ <button class="pri" id="sv" onclick="saveP()">Save</button> <button onclick="editing=null;render()">Cancel</button> ${p.id?`<button class="del" style="float:right" onclick="delP('${p.id}')">Delete project</button>`:''}</div>`}
+const newP=()=>{editing={id:null,title:'',year:new Date().getFullYear(),category_id:(C[0]||{}).id,client:'',role:'',description:'',cover_url:'',sort:P.length+1};render()};
+const editP=id=>{editing={...P.find(p=>p.id===id)};render()};
+function snap(){['title','category_id','year','sort','client','role','description','cover_url'].forEach(k=>{const e=$('#p_'+k);if(e)editing[k]=e.value})}
+async function saveP(){snap();const p=editing;if(!p.title.trim())return T('Title is required');$('#sv').textContent='Saving…';
+ const row={title:p.title,year:+p.year||null,category_id:p.category_id,client:p.client,role:p.role,description:p.description,cover_url:p.cover_url,sort:+p.sort||0};let id=p.id;
+ try{if(id){const {error}=await sb.from('projects').update(row).eq('id',id);if(error)throw error}
+ else{const {data,error}=await sb.from('projects').insert(row).select().single();if(error)throw error;id=data.id}
+ let n=I.filter(i=>i.project_id===id).length;
+ for(const f of [...$('#gal').files]){const url=await up(f,'projects');const {error}=await sb.from('project_images').insert({project_id:id,url,sort:++n});if(error)throw error}
+ T('Saved');await loadAll();editing=null;render()}catch(x){T(x.message);$('#sv').textContent='Save'}}
+async function delImg(id){snap();await sb.from('project_images').delete().eq('id',id);await loadAll();render()}
+async function delP(id){if(!confirm('Delete this project and its gallery?'))return;await sb.from('projects').delete().eq('id',id);T('Deleted');await loadAll();editing=null;render()}
+
+async function start(){const {data:{session}}=await sb.auth.getSession();if(!session)return login();await loadAll();render()}
+start();
+</script>
+</body>
+</html>

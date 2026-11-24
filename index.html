@@ -108,64 +108,69 @@ a:focus-visible{outline:1px solid var(--red);outline-offset:3px}
 <footer><span>© 2026 Ahmed Haniya</span><span>A Creative Portfolio</span></footer>
 
 <script>
-/* ===== EDIT YOUR CONTENT HERE ===== */
-const SITE={
-  name:'Ahmed Haniya', role:'Art Director & Designer',
-  email:'hello@example.com', instagram:'https://instagram.com/', behance:'https://behance.net/',
-  capabilities:['Brand Identity','Art Direction','Editorial'], experience:['Selected Studios']
-};
-const CATS=[
- {id:'social-media',name:'Social Media',sub:'Campaigns & Content',items:[['Midnight Feed',2026],['Golden Hour',2025],['Pulse',2025],['Afterglow',2024]]},
- {id:'logos',name:'Logos',sub:'Brand Identity',items:[['Shadows of Silence',2026],['Metropolis Redux',2025],['Kinetic Chaos',2025],['Nexus',2024]]},
- {id:'profiles',name:'Profiles',sub:'Company Profiles',items:[['Atlas Group',2026],['Meridian',2025],['Orbit Studio',2025],['Harbor & Co',2024]]},
- {id:'video',name:'Video',sub:'Motion & Titles',items:[['Static Dreams',2026],['Reel No. 9',2025],['Low Light',2025],['Frame Rate',2024]]}
-];
-const CONCEPT=['A brand identity for a film studio that lives in motion. The mark is built from a single torn frame, held between sharp focus and blur, so the logo feels like a scene that has just been interrupted.','The system carries across posters, titles and social formats with one rule: keep the light low and let the red lead the eye.'];
-/* ================================== */
+const SB='https://kyumgelhzkblgtbxuyou.supabase.co',KEY='sb_publishable_uKfIMfgpk28ReR6wDlI78A_fS1axIZq';
+const SITE={name:'Ahmed Haniya',role:'Art Director & Designer',email:'hello@example.com',instagram:'https://instagram.com/',behance:'https://behance.net/',capabilities:'Brand Identity\nArt Direction\nEditorial',experience:'Selected Studios',hero_image:'',about_image:''};
+const DESC='A brand identity for a film studio that lives in motion. The mark is built from a single torn frame, held between sharp focus and blur, so the logo feels like a scene that has just been interrupted.\n\nThe system carries across posters, titles and social formats with one rule: keep the light low and let the red lead the eye.';
+const DEF=[['social-media','Social Media','Campaigns & Content',['Midnight Feed','Golden Hour','Pulse','Afterglow']],['logos','Logos','Brand Identity',['Shadows of Silence','Metropolis Redux','Kinetic Chaos','Nexus']],['profiles','Profiles','Company Profiles',['Atlas Group','Meridian','Orbit Studio','Harbor & Co']],['video','Video','Motion & Titles',['Static Dreams','Reel No. 9','Low Light','Frame Rate']]];
+let CATS=DEF.map(([id,name,sub,t])=>({id,name,sub,cover_url:'',items:t.map((title,i)=>({title,year:[2026,2025,2025,2024][i],client:'Nexus Films',role:'Branding & Direction',description:DESC,cover_url:'',images:[]}))}));
+let all=[];
 const PAL=[['#8a3a3a','#3a2a1a'],['#2a4a7a','#14142a'],['#9a5a3a','#2a2a14'],['#8a2a3a','#2a1414'],['#3a6a8a','#101828'],['#9a7a3a','#1a1a10']];
-const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-const ph=(i,x='')=>`<div class="ph ${x}" style="--a:${PAL[i%6][0]};--b:${PAL[i%6][1]}"></div>`;
-const all=CATS.flatMap(c=>c.items.map(([n,y])=>({c,n,y,id:'project-'+slug(n)})));
-const $=document.getElementById('app');
-const pad2=n=>String(n).padStart(2,'0');
+const slug=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ph=(i,x='',u='')=>`<div class="ph ${x}" style="--a:${PAL[i%6][0]};--b:${PAL[i%6][1]}">${u?`<img src="${esc(u)}" alt="" loading="lazy">`:''}</div>`;
+const lines=s=>String(s||'').split('\n').map(x=>x.trim()).filter(Boolean);
+const $=document.getElementById('app'),pad2=n=>String(n).padStart(2,'0');
+
+const q=t=>fetch(`${SB}/rest/v1/${t}`,{headers:{apikey:KEY}}).then(r=>r.ok?r.json():Promise.reject());
+async function load(){
+ try{const [s,c,p,im]=await Promise.all([q('site_settings?select=*'),q('categories?select=*&order=sort'),q('projects?select=*&order=sort'),q('project_images?select=*&order=sort')]);
+  s.forEach(r=>{if(r.value!=null&&r.value!=='')SITE[r.key]=r.value});
+  if(c.length)CATS=c.map(x=>({...x,items:p.filter(y=>y.category_id===x.id).map(y=>({...y,images:im.filter(i=>i.project_id===y.id).map(i=>i.url)}))}));
+ }catch(e){}
+ all=CATS.flatMap(c=>c.items.map(p=>({...p,c,h:'project-'+slug(p.title)})));
+ const l=document.querySelector('.links a');if(l&&CATS[0])l.href='#'+CATS[0].id;
+}
 
 function home(){
  $.innerHTML=`<div class="fade">
- <header class="hero">${ph(0)}
-  <h1>${SITE.name}</h1>
-  <div class="sub"><span>A Creative Portfolio</span><span>${SITE.role}</span></div>
+ <header class="hero">${ph(0,'',SITE.hero_image)}
+  <h1>${esc(SITE.name)}</h1>
+  <div class="sub"><span>A Creative Portfolio</span><span>${esc(SITE.role)}</span></div>
   <a class="play" href="#scenes">SCROLL TO PLAY<span class="dash"><i></i><i></i><i></i><i></i><i></i><i></i></span></a>
  </header>
- <section class="pad" id="scenes"><h2 class="t">Choose a scene</h2><p class="note">Four categories. Select one to see the work.</p></section>
- <div class="strip"><div class="reel" id="reel">${CATS.map((c,i)=>`<a class="scene" href="#${c.id}">${ph(i+1)}<div class="in"><div class="n">SCENE ${pad2(i+1)}</div><div class="nm">${c.name}</div><div class="ds">${c.sub}</div></div></a>`).join('')}</div></div>
+ <section class="pad" id="scenes"><h2 class="t">Choose a scene</h2><p class="note">${CATS.length} categories. Select one to see the work.</p></section>
+ <div class="strip"><div class="reel" id="reel">${CATS.map((c,i)=>`<a class="scene" href="#${c.id}">${ph(i+1,'',c.cover_url)}<div class="in"><div class="n">SCENE ${pad2(i+1)}</div><div class="nm">${esc(c.name)}</div><div class="ds">${esc(c.sub)}</div></div></a>`).join('')}</div></div>
  <div class="track"><i id="head"></i></div><div class="cap">Playhead</div><div style="height:60px"></div></div>`;
  const r=document.getElementById('reel'),h=document.getElementById('head');
  r.onscroll=()=>{const m=r.scrollWidth-r.clientWidth;h.style.left=(m>0?r.scrollLeft/m*100:0)+'%'};
 }
 function category(id){
  const c=CATS.find(x=>x.id===id);
- $.innerHTML=`<div class="page fade"><h1>${c.name}</h1>
- <div class="tabs">${CATS.map(t=>`<a href="#${t.id}" class="${t.id===id?'on':''}">${t.name}</a>`).join('')}</div>
- <div class="grid">${c.items.map(([n,y],i)=>`<a class="card" href="#project-${slug(n)}">${ph(i)}<span class="no">NO. ${pad2(i+1)}</span><div class="tx"><h3>${n}</h3><div class="ct">${c.name} / ${y}</div></div></a>`).join('')}</div></div>`;
+ $.innerHTML=`<div class="page fade"><h1>${esc(c.name)}</h1>
+ <div class="tabs">${CATS.map(t=>`<a href="#${t.id}" class="${t.id===id?'on':''}">${esc(t.name)}</a>`).join('')}</div>
+ <div class="grid">${c.items.map((p,i)=>`<a class="card" href="#project-${slug(p.title)}">${ph(i,'',p.cover_url)}<span class="no">NO. ${pad2(i+1)}</span><div class="tx"><h3>${esc(p.title)}</h3><div class="ct">${esc(c.name)} / ${p.year||''}</div></div></a>`).join('')}</div></div>`;
 }
-function project(id){
- const k=all.findIndex(p=>p.id===id),p=all[k],nx=all[(k+1)%all.length],it=p.c.items.findIndex(x=>x[0]===p.n);
- $.innerHTML=`<div class="fade">${ph(it,'phero')}
- <div class="proj"><h1>${p.n}</h1>
-  <div class="meta"><div><dl><dt>Director</dt><dd>${SITE.name}</dd><dt>Category</dt><dd>${p.c.name}</dd></dl></div>
-  <div><dl><dt>Client</dt><dd>Nexus Films</dd><dt>Year</dt><dd>${p.y}</dd><dt>Role</dt><dd>Branding & Direction</dd></dl></div>
-  <div><dt style="font-size:9px;letter-spacing:.16em;color:var(--red);text-transform:uppercase">The concept</dt>${CONCEPT.map(t=>`<p>${t}</p>`).join('')}</div></div>
-  <div class="gal">${[0,1,2,3,4].map(j=>ph(it+j+1)).join('')}</div>
-  <div class="pn"><a href="#${p.c.id}"><small>Back</small><span>${p.c.name}</span></a><a href="#${nx.id}"><small>Next project</small><span>${nx.n}</span></a></div>
+function project(h){
+ const k=all.findIndex(p=>p.h===h),p=all[k],nx=all[(k+1)%all.length],it=p.c.items.findIndex(x=>x.title===p.title);
+ const row=(l,v)=>v?`<dt>${l}</dt><dd>${esc(v)}</dd>`:'';
+ const paras=String(p.description||'').split(/\n\s*\n/).filter(Boolean);
+ const gal=p.images&&p.images.length?p.images.map((u,j)=>ph(j,'',u)):[0,1,2,3,4].map(j=>ph(it+j+1));
+ $.innerHTML=`<div class="fade">${ph(it,'phero',p.cover_url)}
+ <div class="proj"><h1>${esc(p.title)}</h1>
+  <div class="meta"><div><dl>${row('Director',SITE.name)}${row('Category',p.c.name)}</dl></div>
+  <div><dl>${row('Client',p.client)}${row('Year',p.year)}${row('Role',p.role)}</dl></div>
+  <div><dt style="font-size:9px;letter-spacing:.16em;color:var(--red);text-transform:uppercase">The concept</dt>${paras.map(t=>`<p>${esc(t)}</p>`).join('')}</div></div>
+  <div class="gal">${gal.join('')}</div>
+  <div class="pn"><a href="#${p.c.id}"><small>Back</small><span>${esc(p.c.name)}</span></a><a href="#${nx.h}"><small>Next project</small><span>${esc(nx.title)}</span></a></div>
  </div></div>`;
 }
 function about(){
- $.innerHTML=`<div class="about fade">${ph(2)}
+ $.innerHTML=`<div class="about fade">${ph(2,'',SITE.about_image)}
  <div class="credits"><h1>The End Credits</h1>
-  <div><h4>Designer & Art Director</h4><p>${SITE.name}</p></div>
-  <div><h4>Capabilities</h4>${SITE.capabilities.map(x=>`<p>${x}</p>`).join('')}</div>
-  <div><h4>Experience</h4>${SITE.experience.map(x=>`<p>${x}</p>`).join('')}</div>
-  <div><h4>Contact / Get in touch</h4><p><a href="mailto:${SITE.email}">${SITE.email}</a></p><p><a href="${SITE.instagram}" target="_blank" rel="noopener">Instagram</a></p><p><a href="${SITE.behance}" target="_blank" rel="noopener">Behance</a></p></div>
+  <div><h4>Designer & Art Director</h4><p>${esc(SITE.name)}</p></div>
+  <div><h4>Capabilities</h4>${lines(SITE.capabilities).map(x=>`<p>${esc(x)}</p>`).join('')}</div>
+  <div><h4>Experience</h4>${lines(SITE.experience).map(x=>`<p>${esc(x)}</p>`).join('')}</div>
+  <div><h4>Contact / Get in touch</h4><p><a href="mailto:${esc(SITE.email)}">${esc(SITE.email)}</a></p><p><a href="${esc(SITE.instagram)}" target="_blank" rel="noopener">Instagram</a></p><p><a href="${esc(SITE.behance)}" target="_blank" rel="noopener">Behance</a></p></div>
  </div></div>`;
 }
 function route(){
@@ -173,11 +178,12 @@ function route(){
  if(h==='scenes')return;
  if(h==='about')about();
  else if(CATS.some(c=>c.id===h))category(h);
- else if(all.some(p=>p.id===h))project(h);
+ else if(all.some(p=>p.h===h))project(h);
  else home();
  window.scrollTo(0,0);
 }
-addEventListener('hashchange',route);route();
+addEventListener('hashchange',route);
+load().then(route);
 </script>
 </body>
 </html>
