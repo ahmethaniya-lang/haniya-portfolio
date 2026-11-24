@@ -61,7 +61,7 @@ async function loadAll(){const [s,c,p,i]=await Promise.all([sb.from('site_settin
 
 function login(){app.innerHTML=`<div class="login box"><h1>HANIYA ADMIN</h1><label>Email</label><input id="em" type="email" autocomplete="username"><label>Password</label><input id="pw" type="password" autocomplete="current-password"><br><br><button class="pri" id="go" style="width:100%">Sign in</button></div>`;
  const go=async()=>{const {error}=await sb.auth.signInWithPassword({email:$('#em').value.trim(),password:$('#pw').value});if(error)return T(error.message);start()};
- $('#go').onclick=go;$('#pw').onkeydown=e=>e.key==='Enter'&&go()}
+ $('#go').onclick=go;$('#pw').onkeydown=e=>{if(e.key==='Enter')go()}}
 
 function render(){
  const tabs=[['site','Site'],['cats','Categories'],['projects','Projects']].map(([k,n])=>`<button class="${tab===k?'on':''}" onclick="tab='${k}';editing=null;render()">${n}</button>`).join('');
