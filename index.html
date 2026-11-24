@@ -4,6 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ahmed Haniya — A Creative Portfolio</title>
+<meta name="description" content="Ahmed Haniya — Art Director & Designer. Brand identity, art direction and editorial work.">
+<meta name="theme-color" content="#141414">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Ahmed Haniya">
+<meta property="og:title" content="Ahmed Haniya — A Creative Portfolio">
+<meta property="og:description" content="Art Director & Designer. Brand identity, art direction and editorial work.">
+<meta property="og:url" content="https://YOUR-DOMAIN.com/">
+<meta property="og:image" content="https://YOUR-DOMAIN.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://YOUR-DOMAIN.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
@@ -93,6 +109,16 @@ h2.t{font-family:var(--serif);font-weight:400;font-size:clamp(32px,4vw,44px);lin
 .pdf .pdfl{display:inline-block;margin-bottom:10px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
 .pdf .pdfl:hover{color:var(--red)}
 .pdf .pdfs{color:var(--mute);font-size:12px;letter-spacing:.1em;padding:30px 0}
+/* teaser + buttons */
+.btn2{display:inline-block;border:1px solid #8a847a;padding:12px 20px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin:0 10px 10px 0;transition:background .2s,color .2s}
+.btn2:hover{background:var(--cream);color:var(--bg)}
+.btn2.wa{background:#25D366;border-color:#25D366;color:#0b1f12}.btn2.wa:hover{background:#1ebe5b;color:#0b1f12}
+
+.teaser{display:grid;grid-template-columns:240px 1fr;gap:44px;align-items:center;max-width:1000px;margin:0 auto;padding:90px var(--pad)}
+.teaser.nophoto{grid-template-columns:1fr}
+.teaser .ph{aspect-ratio:.8;border-radius:10px}
+.teaser p{color:#cfc7b8;max-width:54ch;margin:14px 0 24px}
+.credits .bio{max-width:46ch;margin:0 auto 34px;color:#cfc7b8}
 /* about */
 .about{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;padding:110px var(--pad) 70px;min-height:100vh}
 .about .ph{aspect-ratio:.75;max-width:500px;width:100%}
@@ -102,7 +128,7 @@ h2.t{font-family:var(--serif);font-weight:400;font-size:clamp(32px,4vw,44px);lin
 .credits div{margin-bottom:26px}.credits p{line-height:1.55}.credits a:hover{color:var(--red)}
 footer{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding:26px var(--pad);color:var(--mute);font-size:10px;letter-spacing:.16em;text-transform:uppercase}
 .fade{animation:f .5s ease}@keyframes f{from{opacity:0}to{opacity:1}}
-@media(max-width:760px){.links a:not(.btn){display:none}.meta{grid-template-columns:1fr 1fr}.meta>div:last-child{grid-column:1/-1}.about{grid-template-columns:1fr}.about .ph{margin:auto}.gal{grid-template-columns:1fr}.hero .sub{flex-direction:column;gap:6px}}
+@media(max-width:760px){.links{gap:14px}.links a.wk{display:none}.links .btn{padding:8px 12px}.logo{font-size:18px}.teaser{grid-template-columns:1fr;gap:26px}.teaser .ph{max-width:220px}.meta{grid-template-columns:1fr 1fr}.meta>div:last-child{grid-column:1/-1}.about{grid-template-columns:1fr}.about .ph{margin:auto}.gal{grid-template-columns:1fr}.hero .sub{flex-direction:column;gap:6px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
 a:focus-visible{outline:1px solid var(--red);outline-offset:3px}
 
@@ -140,7 +166,7 @@ a:focus-visible{outline:1px solid var(--red);outline-offset:3px}
 <body>
 <nav>
   <a class="logo" href="#home">PORTFOLIO</a>
-  <div class="links"><a href="#social-media">Work</a><a href="#about">About</a><a href="#about">Contact</a><a class="btn" href="#home">Enter Experience</a></div>
+  <div class="links"><a class="wk" href="#social-media">Work</a><a href="#about">About</a><a class="btn" id="wab" href="#" target="_blank" rel="noopener" style="display:none">WhatsApp</a></div>
 </nav>
 <main id="app"></main>
 <footer><span>© 2026 Ahmed Haniya</span><span>A Creative Portfolio</span></footer>
@@ -148,7 +174,7 @@ a:focus-visible{outline:1px solid var(--red);outline-offset:3px}
 
 <script>
 const SB='https://kyumgelhzkblgtbxuyou.supabase.co',KEY='sb_publishable_uKfIMfgpk28ReR6wDlI78A_fS1axIZq';
-const SITE={name:'Ahmed Haniya',role:'Art Director & Designer',email:'hello@example.com',instagram:'https://instagram.com/',behance:'https://behance.net/',capabilities:'Brand Identity\nArt Direction\nEditorial',experience:'Selected Studios',hero_image:'',hero_slide_1:'',hero_slide_2:'',hero_slide_3:'',about_image:''};
+const SITE={name:'Ahmed Haniya',role:'Art Director & Designer',email:'hello@example.com',whatsapp:'',bio:'',instagram:'https://instagram.com/',behance:'https://behance.net/',capabilities:'Brand Identity\nArt Direction\nEditorial',experience:'Selected Studios',hero_image:'',hero_slide_1:'',hero_slide_2:'',hero_slide_3:'',about_image:''};
 const DESC='A brand identity for a film studio that lives in motion. The mark is built from a single torn frame, held between sharp focus and blur, so the logo feels like a scene that has just been interrupted.\n\nThe system carries across posters, titles and social formats with one rule: keep the light low and let the red lead the eye.';
 const DEF=[['social-media','Social Media','Campaigns & Content',['Midnight Feed','Golden Hour','Pulse','Afterglow']],['logos','Logos','Brand Identity',['Shadows of Silence','Metropolis Redux','Kinetic Chaos','Nexus']],['profiles','Profiles','Company Profiles',['Atlas Group','Meridian','Orbit Studio','Harbor & Co']],['video','Video','Motion & Titles',['Static Dreams','Reel No. 9','Low Light','Frame Rate']]];
 let CATS=DEF.map(([id,name,sub,t])=>({id,name,sub,cover_url:'',items:t.map((title,i)=>({title,year:[2026,2025,2025,2024][i],client:'Nexus Films',role:'Branding & Direction',description:DESC,cover_url:'',images:[]}))}));
@@ -168,9 +194,12 @@ async function load(){
   if(c.length)CATS=c.map(x=>({...x,items:p.filter(y=>y.category_id===x.id).map(y=>({...y,images:im.filter(i=>i.project_id===y.id).map(i=>i.url)}))}));
  }catch(e){}
  all=CATS.flatMap(c=>c.items.map(p=>({...p,c,h:hid(p)})));
- const l=document.querySelector('.links a');if(l&&CATS[0])l.href='#'+CATS[0].id;
+ const l=document.querySelector('.links a');if(l&&CATS[0])l.href='#'+CATS[0].id;setNav();
 }
 
+const waNum=()=>String(SITE.whatsapp||'').replace(/\D/g,'').replace(/^00/,'');
+const waUrl=()=>waNum()?'https://wa.me/'+waNum():'';
+function setNav(){const b=document.getElementById('wab');if(!b)return;const u=waUrl();if(u){b.href=u;b.style.display=''}else b.style.display='none'}
 const isVid=u=>/\.(mp4|webm|mov|m4v)(\?|$)/i.test(u||'');
 const slidesOf=()=>[SITE.hero_slide_1||SITE.hero_image,SITE.hero_slide_2,SITE.hero_slide_3].filter(Boolean);
 let LBC=null;
@@ -201,7 +230,8 @@ function home(){
  </header>
  <section class="pad" id="scenes"><h2 class="t">Choose a scene</h2><p class="note">${CATS.length} categories. Select one to see the work.</p></section>
  <div class="strip"><div class="reel" id="reel">${CATS.map((c,i)=>`<a class="scene" href="#${c.id}">${ph(i+1,'',c.cover_url)}<div class="in"><div class="n">SCENE ${pad2(i+1)}</div><div class="nm">${esc(c.name)}</div><div class="ds">${esc(c.sub)}</div></div></a>`).join('')}</div></div>
- <div class="track"><i id="head"></i></div><div class="cap">Playhead</div><div style="height:60px"></div></div>`;
+ <div class="track"><i id="head"></i></div><div class="cap">Playhead</div>
+ <section class="teaser ${SITE.about_image?'':'nophoto'}">${SITE.about_image?ph(2,'',SITE.about_image):''}<div><div class="cap" style="color:var(--red)">About</div><h2 class="t" style="margin-top:6px">${esc(SITE.name)}</h2><p>${esc(SITE.bio||SITE.role)}</p><a class="btn2" href="#about">About me &rarr;</a>${waUrl()?`<a class="btn2 wa" href="${esc(waUrl())}" target="_blank" rel="noopener">WhatsApp</a>`:''}</div></section></div>`;
  const r=document.getElementById('reel'),h=document.getElementById('head');
  r.onscroll=()=>{const m=r.scrollWidth-r.clientWidth;h.style.left=(m>0?r.scrollLeft/m*100:0)+'%'};
  const el=[...$.querySelectorAll('.slide')];
@@ -260,11 +290,12 @@ function project(h){
 }
 function about(){
  $.innerHTML=`<div class="about fade">${ph(2,'',SITE.about_image)}
- <div class="credits"><h1>The End Credits</h1>
+ <div class="credits"><div class="cap" style="color:var(--red);margin-bottom:10px">The End Credits</div><h1>About Me</h1>
+  ${String(SITE.bio||'').split(/\n\s*\n/).filter(Boolean).map(t=>`<p class="bio">${esc(t)}</p>`).join('')}
   <div><h4>Designer & Art Director</h4><p>${esc(SITE.name)}</p></div>
   <div><h4>Capabilities</h4>${lines(SITE.capabilities).map(x=>`<p>${esc(x)}</p>`).join('')}</div>
   <div><h4>Experience</h4>${lines(SITE.experience).map(x=>`<p>${esc(x)}</p>`).join('')}</div>
-  <div><h4>Contact / Get in touch</h4><p><a href="mailto:${esc(SITE.email)}">${esc(SITE.email)}</a></p><p><a href="${esc(SITE.instagram)}" target="_blank" rel="noopener">Instagram</a></p><p><a href="${esc(SITE.behance)}" target="_blank" rel="noopener">Behance</a></p></div>
+  <div><h4>Contact / Get in touch</h4>${waUrl()?`<p><a href="${esc(waUrl())}" target="_blank" rel="noopener">WhatsApp: +${esc(waNum())}</a></p>`:''}<p><a href="mailto:${esc(SITE.email)}">${esc(SITE.email)}</a></p><p><a href="${esc(SITE.instagram)}" target="_blank" rel="noopener">Instagram</a></p><p><a href="${esc(SITE.behance)}" target="_blank" rel="noopener">Behance</a></p>${waUrl()?`<p style="margin-top:18px"><a class="btn2 wa" href="${esc(waUrl())}" target="_blank" rel="noopener">Chat on WhatsApp</a></p>`:''}</div>
  </div></div>`;
 }
 const old=h=>slug(h.slice(8))?all.find(p=>h.startsWith('project-')&&'project-'+slug(p.title)===h):null;

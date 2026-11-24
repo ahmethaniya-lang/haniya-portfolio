@@ -82,12 +82,13 @@ function render(){
  app.innerHTML=`<div class="bar"><h1>HANIYA ADMIN</h1><div><a class="btn" href="/" target="_blank" style="text-decoration:none">View site</a> <button onclick="sb.auth.signOut().then(login)">Sign out</button></div></div><div class="tabs">${tabs}</div><div id="v"></div>`;
  ({site:siteV,cats:catsV,projects:projV})[tab]()}
 
-const F=[['name','Name'],['role','Role'],['email','Email'],['instagram','Instagram link'],['behance','Behance link']];
+const F=[['name','Name'],['role','Role'],['email','Email'],['whatsapp','WhatsApp number (with country code, digits only, e.g. 970599123456)'],['instagram','Instagram link'],['behance','Behance link']];
 function siteV(){$('#v').innerHTML=`<div class="box"><h2>Site</h2>${[1,2,3].map(n=>imgField('s_hero_slide_'+n,'Hero slide '+n+' (image or video)',(n===1?S.hero_slide_1||S.hero_image:S['hero_slide_'+n])||'','image/*,video/*')).join('')}${imgField('s_about_image','About photo',S.about_image||'')}
  ${F.map(([k,n])=>`<label>${n}</label><input id="s_${k}" value="${esc(S[k])}">`).join('')}
+ <label>Short bio (shown on the home page and About page; blank line between paragraphs)</label><textarea id="s_bio">${esc(S.bio)}</textarea>
  <label>Capabilities (one per line)</label><textarea id="s_capabilities">${esc(S.capabilities)}</textarea>
  <label>Experience (one per line)</label><textarea id="s_experience">${esc(S.experience)}</textarea><br><br><button class="pri" onclick="saveSite()">Save</button></div>`}
-async function saveSite(){const keys=[...F.map(f=>f[0]),'capabilities','experience','hero_slide_1','hero_slide_2','hero_slide_3','about_image'];
+async function saveSite(){const keys=[...F.map(f=>f[0]),'bio','capabilities','experience','hero_slide_1','hero_slide_2','hero_slide_3','about_image'];
  const {error}=await sb.from('site_settings').upsert(keys.map(k=>({key:k,value:$('#s_'+k).value})),{onConflict:'key'});
  if(error)return T(error.message);T('Saved');await loadAll()}
 
