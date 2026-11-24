@@ -80,8 +80,9 @@ h2.t{font-family:var(--serif);font-weight:400;font-size:clamp(32px,4vw,44px);lin
 .meta dt{font-size:9px;letter-spacing:.16em;color:var(--red);text-transform:uppercase}
 .meta dd{margin-bottom:16px}
 .meta p{color:#cfc7b8;margin-bottom:14px;max-width:62ch}
-.gal{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:50px}
-.gal .ph{height:280px}.gal .ph:nth-child(1){height:380px}.gal .ph:nth-child(3){grid-column:1/-1;height:270px}.gal .ph:nth-child(4){height:380px}
+.gal{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:50px}
+.gal .ph{aspect-ratio:3/2;cursor:zoom-in}
+.gal .ph img{transition:transform .6s ease}.gal .ph:hover img{transform:scale(1.04)}
 .pn{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:50px;padding-top:22px}
 .pn small{display:block;font-size:9px;letter-spacing:.16em;color:var(--red);text-transform:uppercase}
 .pn span{font-family:var(--serif);font-size:24px}.pn a:last-child{text-align:right}
@@ -97,6 +98,28 @@ footer{display:flex;justify-content:space-between;border-top:1px solid var(--lin
 @media(max-width:760px){.links a:not(.btn){display:none}.meta{grid-template-columns:1fr 1fr}.meta>div:last-child{grid-column:1/-1}.about{grid-template-columns:1fr}.about .ph{margin:auto}.gal{grid-template-columns:1fr}.hero .sub{flex-direction:column;gap:6px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
 a:focus-visible{outline:1px solid var(--red);outline-offset:3px}
+
+/* red hover frame */
+.scene,.card{border-radius:10px;overflow:hidden;transition:box-shadow .25s ease}
+.scene{position:relative}
+.scene::after,.card::before{content:"";position:absolute;inset:0;z-index:5;border:2px solid transparent;border-radius:10px;pointer-events:none;transition:border-color .25s ease}
+.scene:hover,.scene:focus-visible,.card:hover,.card:focus-visible{box-shadow:0 0 26px rgba(210,69,59,.32)}
+.scene:hover::after,.scene:focus-visible::after,.card:hover::before,.card:focus-visible::before{border-color:var(--red)}
+/* hero slider */
+.slides{position:absolute;inset:0;overflow:hidden}
+.hero>.slides{position:absolute;z-index:0}
+.slide{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease}
+.slide.on{opacity:.8}
+.slide img,.slide video{width:100%;height:100%;object-fit:cover;display:block}
+.slide .ph{position:absolute;inset:0;opacity:1}
+.hero>.arr{position:absolute;top:46%;z-index:3;background:none;border:0;color:var(--cream);font:300 44px/1 var(--serif);cursor:pointer;padding:8px 14px;opacity:.55}
+.arr:hover{opacity:1}.arr.l{left:calc(var(--pad) - 14px)}.arr.r{right:calc(var(--pad) - 14px)}
+.dash button{width:26px;height:14px;background:none;border:0;cursor:pointer;position:relative;padding:0}
+.dash button::after{content:"";position:absolute;left:0;right:0;top:6px;height:2px;background:#555;transition:background .3s}
+.dash button.on::after{background:var(--cream)}
+/* lightbox */
+.lb{position:fixed;inset:0;z-index:50;background:rgba(10,10,10,.95);display:flex;align-items:center;justify-content:center;padding:24px;cursor:zoom-out}
+.lb img{max-width:100%;max-height:100%;object-fit:contain;cursor:pointer}
 </style>
 </head>
 <body>
@@ -109,7 +132,7 @@ a:focus-visible{outline:1px solid var(--red);outline-offset:3px}
 
 <script>
 const SB='https://kyumgelhzkblgtbxuyou.supabase.co',KEY='sb_publishable_uKfIMfgpk28ReR6wDlI78A_fS1axIZq';
-const SITE={name:'Ahmed Haniya',role:'Art Director & Designer',email:'hello@example.com',instagram:'https://instagram.com/',behance:'https://behance.net/',capabilities:'Brand Identity\nArt Direction\nEditorial',experience:'Selected Studios',hero_image:'',about_image:''};
+const SITE={name:'Ahmed Haniya',role:'Art Director & Designer',email:'hello@example.com',instagram:'https://instagram.com/',behance:'https://behance.net/',capabilities:'Brand Identity\nArt Direction\nEditorial',experience:'Selected Studios',hero_image:'',hero_slide_1:'',hero_slide_2:'',hero_slide_3:'',about_image:''};
 const DESC='A brand identity for a film studio that lives in motion. The mark is built from a single torn frame, held between sharp focus and blur, so the logo feels like a scene that has just been interrupted.\n\nThe system carries across posters, titles and social formats with one rule: keep the light low and let the red lead the eye.';
 const DEF=[['social-media','Social Media','Campaigns & Content',['Midnight Feed','Golden Hour','Pulse','Afterglow']],['logos','Logos','Brand Identity',['Shadows of Silence','Metropolis Redux','Kinetic Chaos','Nexus']],['profiles','Profiles','Company Profiles',['Atlas Group','Meridian','Orbit Studio','Harbor & Co']],['video','Video','Motion & Titles',['Static Dreams','Reel No. 9','Low Light','Frame Rate']]];
 let CATS=DEF.map(([id,name,sub,t])=>({id,name,sub,cover_url:'',items:t.map((title,i)=>({title,year:[2026,2025,2025,2024][i],client:'Nexus Films',role:'Branding & Direction',description:DESC,cover_url:'',images:[]}))}));
@@ -131,18 +154,42 @@ async function load(){
  const l=document.querySelector('.links a');if(l&&CATS[0])l.href='#'+CATS[0].id;
 }
 
+const isVid=u=>/\.(mp4|webm|mov|m4v)(\?|$)/i.test(u||'');
+const slidesOf=()=>[SITE.hero_slide_1||SITE.hero_image,SITE.hero_slide_2,SITE.hero_slide_3].filter(Boolean);
+function lb(urls,i){const o=document.createElement('div');o.className='lb';const im=document.createElement('img');o.appendChild(im);
+ const show=n=>{i=(n+urls.length)%urls.length;im.src=urls[i]};show(i);
+ const k=e=>{if(e.key==='Escape')close();if(e.key==='ArrowRight')show(i+1);if(e.key==='ArrowLeft')show(i-1)};
+ const close=()=>{o.remove();document.removeEventListener('keydown',k)};
+ o.onclick=e=>{e.target===im?show(i+1):close()};document.addEventListener('keydown',k);document.body.appendChild(o)}
 function home(){
+ const sl=slidesOf();
  $.innerHTML=`<div class="fade">
- <header class="hero">${ph(0,'',SITE.hero_image)}
+ <header class="hero"><div class="slides">${sl.length?sl.map(u=>`<div class="slide">${isVid(u)?`<video src="${esc(u)}" muted playsinline preload="metadata"></video>`:`<img src="${esc(u)}" alt="">`}</div>`).join(''):`<div class="slide on">${ph(0)}</div>`}</div>
+  ${sl.length>1?'<button class="arr l" aria-label="Previous">‹</button><button class="arr r" aria-label="Next">›</button>':''}
   <h1>${esc(SITE.name)}</h1>
   <div class="sub"><span>A Creative Portfolio</span><span>${esc(SITE.role)}</span></div>
-  <a class="play" href="#scenes">SCROLL TO PLAY<span class="dash"><i></i><i></i><i></i><i></i><i></i><i></i></span></a>
+  <a class="play" href="#scenes">SCROLL TO PLAY</a>
+  ${sl.length>1?`<div class="dash">${sl.map((_,i)=>`<button aria-label="Slide ${i+1}"></button>`).join('')}</div>`:''}
  </header>
  <section class="pad" id="scenes"><h2 class="t">Choose a scene</h2><p class="note">${CATS.length} categories. Select one to see the work.</p></section>
  <div class="strip"><div class="reel" id="reel">${CATS.map((c,i)=>`<a class="scene" href="#${c.id}">${ph(i+1,'',c.cover_url)}<div class="in"><div class="n">SCENE ${pad2(i+1)}</div><div class="nm">${esc(c.name)}</div><div class="ds">${esc(c.sub)}</div></div></a>`).join('')}</div></div>
  <div class="track"><i id="head"></i></div><div class="cap">Playhead</div><div style="height:60px"></div></div>`;
  const r=document.getElementById('reel'),h=document.getElementById('head');
  r.onscroll=()=>{const m=r.scrollWidth-r.clientWidth;h.style.left=(m>0?r.scrollLeft/m*100:0)+'%'};
+ const el=[...$.querySelectorAll('.slide')];
+ if(sl.length===1){el[0].classList.add('on');const v=el[0].querySelector('video');if(v){v.loop=true;v.play().catch(()=>{})}}
+ if(sl.length>1){const dots=[...$.querySelectorAll('.dash button')];let cur=-1,tm;
+  const go=n=>{if(!el[0].isConnected)return;clearTimeout(tm);cur=(n+el.length)%el.length;
+   el.forEach((s,i)=>{s.classList.toggle('on',i===cur);const v=s.querySelector('video');if(v&&i!==cur)v.pause()});
+   dots.forEach((d,i)=>d.classList.toggle('on',i===cur));
+   const v=el[cur].querySelector('video');
+   if(v){v.currentTime=0;v.onended=()=>go(cur+1);v.onerror=()=>go(cur+1);v.play().catch(()=>{tm=setTimeout(()=>go(cur+1),6000)})}
+   else tm=setTimeout(()=>go(cur+1),6000)};
+  $.querySelector('.arr.l').onclick=()=>go(cur-1);$.querySelector('.arr.r').onclick=()=>go(cur+1);
+  dots.forEach((d,i)=>d.onclick=()=>go(i));
+  const hd=$.querySelector('.hero');let x0=0;hd.ontouchstart=e=>x0=e.touches[0].clientX;
+  hd.ontouchend=e=>{const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>50)go(dx<0?cur+1:cur-1)};
+  go(0)}
 }
 function category(id){
  const c=CATS.find(x=>x.id===id);
@@ -154,7 +201,7 @@ function project(h){
  const k=all.findIndex(p=>p.h===h),p=all[k],nx=all[(k+1)%all.length],it=p.c.items.findIndex(x=>x.title===p.title);
  const row=(l,v)=>v?`<dt>${l}</dt><dd>${esc(v)}</dd>`:'';
  const paras=String(p.description||'').split(/\n\s*\n/).filter(Boolean);
- const gal=p.images&&p.images.length?p.images.map((u,j)=>ph(j,'',u)):[0,1,2,3,4].map(j=>ph(it+j+1));
+ const urls=p.images||[],gal=urls.length?urls.map((u,j)=>ph(j,'',u)):[0,1,2,3,4,5].map(j=>ph(it+j+1));
  $.innerHTML=`<div class="fade">${ph(it,'phero',p.cover_url)}
  <div class="proj"><h1>${esc(p.title)}</h1>
   <div class="meta"><div><dl>${row('Director',SITE.name)}${row('Category',p.c.name)}</dl></div>
@@ -163,6 +210,7 @@ function project(h){
   <div class="gal">${gal.join('')}</div>
   <div class="pn"><a href="#${p.c.id}"><small>Back</small><span>${esc(p.c.name)}</span></a><a href="#${nx.h}"><small>Next project</small><span>${esc(nx.title)}</span></a></div>
  </div></div>`;
+ if(urls.length)$.querySelectorAll('.gal .ph').forEach((e,j)=>e.onclick=()=>lb(urls,j));
 }
 function about(){
  $.innerHTML=`<div class="about fade">${ph(2,'',SITE.about_image)}

@@ -41,7 +41,7 @@ const sb=supabase.createClient(SB,KEY);
 const $=s=>document.querySelector(s),app=$('#app');
 let S={},C=[],P=[],I=[],tab='site',editing=null;
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const T=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)};
+const T=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),5000)};
 
 function shrink(f){return new Promise(r=>{if(!f.type.startsWith('image/')||f.type==='image/svg+xml'||f.type==='image/gif')return r(f);
  const im=new Image();im.onload=()=>{const k=Math.min(1,2000/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
@@ -51,10 +51,20 @@ async function up(f,dir){f=await shrink(f);const ext=(f.name.split('.').pop()||'
  const {error}=await sb.storage.from('media').upload(path,f,{cacheControl:'31536000',contentType:f.type});
  if(error)throw error;return sb.storage.from('media').getPublicUrl(path).data.publicUrl}
 
-const imgField=(id,label,url)=>`<label>${label}</label><img class="thumb" id="pv_${id}" src="${esc(url)}" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'">
-<input type="hidden" id="${id}" value="${esc(url)}"><input type="file" accept="image/*" data-t="${id}">`;
-document.addEventListener('change',async e=>{const el=e.target;if(!el.dataset.t||!el.files[0])return;
- try{T('Uploading…');const u=await up(el.files[0],el.dataset.t.startsWith('p_')?'projects':'site');$('#'+el.dataset.t).value=u;$('#pv_'+el.dataset.t).src=u;T('Uploaded — press Save')}catch(x){T(x.message)}});
+const isVid=u=>/\.(mp4|webm|mov|m4v)(\?|$)/i.test(u||'');
+const prev=(id,url)=>isVid(url)?`<video class="thumb" id="pv_${id}" src="${esc(url)}" muted controls></video>`:`<img class="thumb" id="pv_${id}" src="${esc(url)}" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'">`;
+const imgField=(id,label,url,acc='image/*')=>`<label>${label}</label>${prev(id,url)}<input type="hidden" id="${id}" value="${esc(url)}"><input type="file" accept="${acc}" data-t="${id}"> <button type="button" class="del" onclick="clr('${id}')">Remove</button>`;
+async function persist(id,u){let r;
+ if(id.startsWith('s_'))r=await sb.from('site_settings').upsert({key:id.slice(2),value:u},{onConflict:'key'});
+ else if(id.startsWith('c_cover_'))r=await sb.from('categories').update({cover_url:u}).eq('id',id.slice(8));
+ else if(id==='p_cover_url'&&editing&&editing.id){editing.cover_url=u;r=await sb.from('projects').update({cover_url:u}).eq('id',editing.id)}
+ else return false;
+ if(r.error)throw r.error;await loadAll();return true}
+document.addEventListener('change',async e=>{const el=e.target,id=el.dataset.t;if(!id||!el.files[0])return;const f=el.files[0];
+ if(f.type.startsWith('video/')&&f.size>50*1024*1024)return T('Video is over 50MB. Compress it first (e.g. HandBrake, 1080p).');
+ try{T(f.type.startsWith('video/')?'Uploading video… please wait':'Uploading…');const u=await up(f,id.startsWith('p_')?'projects':'site');$('#'+id).value=u;$('#pv_'+id).outerHTML=prev(id,u);
+ T(await persist(id,u)?'Saved ✓':'Uploaded — now press Save')}catch(x){T('Error: '+x.message)}});
+async function clr(id){try{$('#'+id).value='';$('#pv_'+id).outerHTML=prev(id,'');T(await persist(id,'')?'Removed ✓':'Removed — press Save')}catch(x){T('Error: '+x.message)}}
 
 async function loadAll(){const [s,c,p,i]=await Promise.all([sb.from('site_settings').select('*'),sb.from('categories').select('*').order('sort'),sb.from('projects').select('*').order('sort'),sb.from('project_images').select('*').order('sort')]);
  S={};(s.data||[]).forEach(r=>S[r.key]=r.value);C=c.data||[];P=p.data||[];I=i.data||[]}
@@ -69,11 +79,11 @@ function render(){
  ({site:siteV,cats:catsV,projects:projV})[tab]()}
 
 const F=[['name','Name'],['role','Role'],['email','Email'],['instagram','Instagram link'],['behance','Behance link']];
-function siteV(){$('#v').innerHTML=`<div class="box"><h2>Site</h2>${imgField('s_hero_image','Hero image (home page)',S.hero_image||'')}${imgField('s_about_image','About photo',S.about_image||'')}
+function siteV(){$('#v').innerHTML=`<div class="box"><h2>Site</h2>${[1,2,3].map(n=>imgField('s_hero_slide_'+n,'Hero slide '+n+' (image or video)',(n===1?S.hero_slide_1||S.hero_image:S['hero_slide_'+n])||'','image/*,video/*')).join('')}${imgField('s_about_image','About photo',S.about_image||'')}
  ${F.map(([k,n])=>`<label>${n}</label><input id="s_${k}" value="${esc(S[k])}">`).join('')}
  <label>Capabilities (one per line)</label><textarea id="s_capabilities">${esc(S.capabilities)}</textarea>
  <label>Experience (one per line)</label><textarea id="s_experience">${esc(S.experience)}</textarea><br><br><button class="pri" onclick="saveSite()">Save</button></div>`}
-async function saveSite(){const keys=[...F.map(f=>f[0]),'capabilities','experience','hero_image','about_image'];
+async function saveSite(){const keys=[...F.map(f=>f[0]),'capabilities','experience','hero_slide_1','hero_slide_2','hero_slide_3','about_image'];
  const {error}=await sb.from('site_settings').upsert(keys.map(k=>({key:k,value:$('#s_'+k).value})),{onConflict:'key'});
  if(error)return T(error.message);T('Saved');await loadAll()}
 
