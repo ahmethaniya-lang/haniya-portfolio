@@ -86,6 +86,12 @@ h2.t{font-family:var(--serif);font-weight:400;font-size:clamp(32px,4vw,44px);lin
 .pn{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:50px;padding-top:22px}
 .pn small{display:block;font-size:9px;letter-spacing:.16em;color:var(--red);text-transform:uppercase}
 .pn span{font-family:var(--serif);font-size:24px}.pn a:last-child{text-align:right}
+/* pdf in gallery */
+.gal .pdf{grid-column:1/-1;position:relative}
+.pdf canvas{display:block;width:100%;height:auto;background:#fff;border-radius:6px;margin-bottom:12px}
+.pdf .pdfl{display:inline-block;margin-bottom:10px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.pdf .pdfl:hover{color:var(--red)}
+.pdf .pdfs{color:var(--mute);font-size:12px;letter-spacing:.1em;padding:30px 0}
 /* about */
 .about{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;padding:110px var(--pad) 70px;min-height:100vh}
 .about .ph{aspect-ratio:.75;max-width:500px;width:100%}
@@ -216,11 +222,28 @@ function category(id){
  <div class="tabs">${CATS.map(t=>`<a href="#${t.id}" class="${t.id===id?'on':''}">${esc(t.name)}</a>`).join('')}</div>
  <div class="grid">${c.items.map((p,i)=>`<a class="card" href="#${hid(p)}">${ph(i,'',p.cover_url)}<span class="no">NO. ${pad2(i+1)}</span><div class="tx"><h3>${esc(p.title)}</h3><div class="ct">${esc(c.name)} / ${p.year||''}</div></div></a>`).join('')}</div></div>`;
 }
+const isPdf=u=>/\.pdf(\?|$)/i.test(u||'');
+let PDFJS=null;
+const PJV='3.11.174',PJB='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/'+PJV+'/';
+function pdfjs(){return PDFJS||(PDFJS=new Promise((ok,no)=>{const t=document.createElement('script');t.src=PJB+'pdf.min.js';
+ t.onload=()=>{pdfjsLib.GlobalWorkerOptions.workerSrc=PJB+'pdf.worker.min.js';ok(pdfjsLib)};t.onerror=()=>{PDFJS=null;no()};document.head.appendChild(t)}))}
+async function showPdf(box){
+ const st=box.querySelector('.pdfs');
+ try{const lib=await pdfjs(),doc=await lib.getDocument(box.dataset.src).promise;if(!box.isConnected)return;
+  if(st)st.remove();
+  const io=new IntersectionObserver(es=>es.forEach(async e=>{if(!e.isIntersecting)return;io.unobserve(e.target);
+    const cv=e.target;try{const pg=await doc.getPage(+cv.dataset.n),v0=pg.getViewport({scale:1}),
+     k=Math.min(2,window.devicePixelRatio||1)*box.clientWidth/v0.width,v=pg.getViewport({scale:k});
+     cv.width=Math.round(v.width);cv.height=Math.round(v.height);cv.style.aspectRatio=cv.width+'/'+cv.height;
+     await pg.render({canvasContext:cv.getContext('2d'),viewport:v}).promise}catch(x){}}),{rootMargin:'800px'});
+  for(let n=1;n<=doc.numPages;n++){const cv=document.createElement('canvas');cv.dataset.n=n;cv.width=1000;cv.height=1414;cv.style.aspectRatio='1000/1414';box.appendChild(cv);io.observe(cv)}
+ }catch(x){if(st)st.textContent='Could not load the PDF. Use the Open PDF link above.'}}
 function project(h){
  const k=all.findIndex(p=>p.h===h),p=all[k],nx=all[(k+1)%all.length],it=p.c.items.findIndex(x=>x.id===p.id&&x.title===p.title);
  const row=(l,v)=>v?`<dt>${l}</dt><dd>${esc(v)}</dd>`:'';
  const paras=String(p.description||'').split(/\n\s*\n/).filter(Boolean);
- const urls=p.images||[],gal=urls.length?urls.map((u,j)=>ph(j,'',u)):[0,1,2,3,4,5].map(j=>ph(it+j+1));
+ const urls=p.images||[],imgs=urls.filter(u=>!isPdf(u)),
+  gal=urls.length?urls.map((u,j)=>isPdf(u)?`<div class="pdf" data-src="${esc(u)}"><a class="pdfl" href="${esc(u)}" target="_blank" rel="noopener">Open PDF ↗</a><div class="pdfs">Loading PDF…</div></div>`:ph(j,'',u)):[0,1,2,3,4,5].map(j=>ph(it+j+1));
  $.innerHTML=`<div class="fade">${ph(it,'phero',p.cover_url)}
  <div class="proj"><h1>${esc(p.title)}</h1>
   <div class="meta"><div><dl>${row('Director',SITE.name)}${row('Category',p.c.name)}</dl></div>
@@ -229,7 +252,8 @@ function project(h){
   <div class="gal">${gal.join('')}</div>
   <div class="pn"><a href="#${p.c.id}"><small>Back</small><span>${esc(p.c.name)}</span></a><a href="#${nx.h}"><small>Next project</small><span>${esc(nx.title)}</span></a></div>
  </div></div>`;
- if(urls.length)$.querySelectorAll('.gal .ph').forEach((e,j)=>e.onclick=()=>lb(urls,j));
+ if(imgs.length)$.querySelectorAll('.gal .ph').forEach((e,j)=>e.onclick=()=>lb(imgs,j));
+ $.querySelectorAll('.gal .pdf').forEach(showPdf);
 }
 function about(){
  $.innerHTML=`<div class="about fade">${ph(2,'',SITE.about_image)}
