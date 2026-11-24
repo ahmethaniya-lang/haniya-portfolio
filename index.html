@@ -6,7 +6,7 @@
 <title>Ahmed Haniya — A Creative Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#141414;--cream:#f1e8d8;--red:#d2453b;--mute:#9a948a;--line:#2a2a2a;--pad:clamp(20px,5vw,66px);
 --serif:'Crimson Text',Georgia,serif;--sans:'Inter',system-ui,sans-serif}
@@ -34,7 +34,8 @@ nav{position:absolute;top:0;left:0;right:0;z-index:5;display:flex;justify-conten
 .hero .ph::after{display:none}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 40%,var(--bg) 100%)}
 .hero>*:not(.ph){position:relative;z-index:2}
-.hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(48px,11.5vw,170px);line-height:.95;letter-spacing:-.01em;text-transform:uppercase}
+.hero h1{font-family:var(--sans);font-weight:300;font-size:clamp(56px,13vw,190px);line-height:.92;letter-spacing:-.04em;text-transform:uppercase}
+.hero h1 span{display:block}.hero h1 .n1{color:#e4e4e4}.hero h1 .n2{color:#6f6f6f}
 .hero .sub{display:flex;justify-content:space-between;margin-top:22px;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
 .play{text-align:center;margin-top:42px;font-size:10px;letter-spacing:.16em;color:#cfc7b8;display:block}
 .dash{display:flex;gap:3px;justify-content:center;margin-top:8px}
@@ -138,7 +139,7 @@ a:focus-visible{outline:1px solid var(--red);outline-offset:3px}
 </head>
 <body>
 <nav>
-  <a class="logo" href="#home">HANIYA</a>
+  <a class="logo" href="#home">PORTFOLIO</a>
   <div class="links"><a href="#social-media">Work</a><a href="#about">About</a><a href="#about">Contact</a><a class="btn" href="#home">Enter Experience</a></div>
 </nav>
 <main id="app"></main>
@@ -186,12 +187,14 @@ function lb(urls,i){const o=document.createElement('div');o.className='lb';
  let x0=0;o.addEventListener('touchstart',e=>{x0=e.touches[0].clientX},{passive:true});
  o.addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-x0;if(Math.abs(d)>50&&urls.length>1)show(i+(d<0?1:-1))});
  show(i);document.addEventListener('keydown',k);document.body.style.overflow='hidden';document.body.appendChild(o);LBC=close}
+function heroName(n){const w=String(n||'').trim().split(/\s+/).filter(Boolean);
+ return w.length<2?`<span class="n1">${esc(w[0]||'')}</span>`:`<span class="n1">${esc(w[0])}</span><span class="n2">${esc(w.slice(1).join(' '))}</span>`}
 function home(){
  const sl=slidesOf();
  $.innerHTML=`<div class="fade">
  <header class="hero"><div class="slides">${sl.length?sl.map(u=>`<div class="slide">${isVid(u)?`<video src="${esc(u)}" muted playsinline preload="metadata"></video>`:`<img src="${esc(u)}" alt="">`}</div>`).join(''):`<div class="slide on">${ph(0)}</div>`}</div>
   ${sl.length>1?'<button class="arr l" aria-label="Previous">‹</button><button class="arr r" aria-label="Next">›</button>':''}
-  <h1>${esc(SITE.name)}</h1>
+  <h1>${heroName(SITE.name)}</h1>
   <div class="sub"><span>A Creative Portfolio</span><span>${esc(SITE.role)}</span></div>
   <a class="play" href="#scenes">SCROLL TO PLAY</a>
   ${sl.length>1?`<div class="dash">${sl.map((_,i)=>`<button aria-label="Slide ${i+1}"></button>`).join('')}</div>`:''}
