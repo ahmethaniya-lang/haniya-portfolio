@@ -30,6 +30,8 @@ textarea{min-height:110px;resize:vertical}
 .list:last-child{border:0}.list small{color:var(--mute)}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--cream);color:#111;padding:10px 18px;border-radius:6px;z-index:9}
 .login{max-width:360px;margin:12vh auto}
+button:disabled{opacity:.3;cursor:default;border-color:var(--line)}
+.acts{display:flex;gap:6px;align-items:center}.mv{padding:7px 12px}.ord{color:var(--red);display:inline-block;width:26px}
 @media(max-width:600px){.row{grid-template-columns:1fr}}
 </style>
 </head>
@@ -41,7 +43,7 @@ const sb=supabase.createClient(SB,KEY);
 const $=s=>document.querySelector(s),app=$('#app');
 let S={},C=[],P=[],I=[],tab='site',editing=null;
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const T=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),5000)};
+const T=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)};
 
 function shrink(f){return new Promise(r=>{if(!f.type.startsWith('image/')||f.type==='image/svg+xml'||f.type==='image/gif')return r(f);
  const im=new Image();im.onload=()=>{const k=Math.min(1,2000/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
@@ -51,27 +53,17 @@ async function up(f,dir){f=await shrink(f);const ext=(f.name.split('.').pop()||'
  const {error}=await sb.storage.from('media').upload(path,f,{cacheControl:'31536000',contentType:f.type});
  if(error)throw error;return sb.storage.from('media').getPublicUrl(path).data.publicUrl}
 
-const isVid=u=>/\.(mp4|webm|mov|m4v)(\?|$)/i.test(u||'');
-const prev=(id,url)=>isVid(url)?`<video class="thumb" id="pv_${id}" src="${esc(url)}" muted controls></video>`:`<img class="thumb" id="pv_${id}" src="${esc(url)}" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'">`;
-const imgField=(id,label,url,acc='image/*')=>`<label>${label}</label>${prev(id,url)}<input type="hidden" id="${id}" value="${esc(url)}"><input type="file" accept="${acc}" data-t="${id}"> <button type="button" class="del" onclick="clr('${id}')">Remove</button>`;
-async function persist(id,u){let r;
- if(id.startsWith('s_'))r=await sb.from('site_settings').upsert({key:id.slice(2),value:u},{onConflict:'key'});
- else if(id.startsWith('c_cover_'))r=await sb.from('categories').update({cover_url:u}).eq('id',id.slice(8));
- else if(id==='p_cover_url'&&editing&&editing.id){editing.cover_url=u;r=await sb.from('projects').update({cover_url:u}).eq('id',editing.id)}
- else return false;
- if(r.error)throw r.error;await loadAll();return true}
-document.addEventListener('change',async e=>{const el=e.target,id=el.dataset.t;if(!id||!el.files[0])return;const f=el.files[0];
- if(f.type.startsWith('video/')&&f.size>50*1024*1024)return T('Video is over 50MB. Compress it first (e.g. HandBrake, 1080p).');
- try{T(f.type.startsWith('video/')?'Uploading video… please wait':'Uploading…');const u=await up(f,id.startsWith('p_')?'projects':'site');$('#'+id).value=u;$('#pv_'+id).outerHTML=prev(id,u);
- T(await persist(id,u)?'Saved ✓':'Uploaded — now press Save')}catch(x){T('Error: '+x.message)}});
-async function clr(id){try{$('#'+id).value='';$('#pv_'+id).outerHTML=prev(id,'');T(await persist(id,'')?'Removed ✓':'Removed — press Save')}catch(x){T('Error: '+x.message)}}
+const imgField=(id,label,url)=>`<label>${label}</label><img class="thumb" id="pv_${id}" src="${esc(url)}" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'">
+<input type="hidden" id="${id}" value="${esc(url)}"><input type="file" accept="image/*" data-t="${id}">`;
+document.addEventListener('change',async e=>{const el=e.target;if(!el.dataset.t||!el.files[0])return;
+ try{T('Uploading…');const u=await up(el.files[0],el.dataset.t.startsWith('p_')?'projects':'site');$('#'+el.dataset.t).value=u;$('#pv_'+el.dataset.t).src=u;T('Uploaded — press Save')}catch(x){T(x.message)}});
 
 async function loadAll(){const [s,c,p,i]=await Promise.all([sb.from('site_settings').select('*'),sb.from('categories').select('*').order('sort'),sb.from('projects').select('*').order('sort'),sb.from('project_images').select('*').order('sort')]);
  S={};(s.data||[]).forEach(r=>S[r.key]=r.value);C=c.data||[];P=p.data||[];I=i.data||[]}
 
 function login(){app.innerHTML=`<div class="login box"><h1>HANIYA ADMIN</h1><label>Email</label><input id="em" type="email" autocomplete="username"><label>Password</label><input id="pw" type="password" autocomplete="current-password"><br><br><button class="pri" id="go" style="width:100%">Sign in</button></div>`;
  const go=async()=>{const {error}=await sb.auth.signInWithPassword({email:$('#em').value.trim(),password:$('#pw').value});if(error)return T(error.message);start()};
- $('#go').onclick=go;$('#pw').onkeydown=e=>{if(e.key==='Enter')go()}}
+ $('#go').onclick=go;$('#pw').onkeydown=e=>e.key==='Enter'&&go()}
 
 function render(){
  const tabs=[['site','Site'],['cats','Categories'],['projects','Projects']].map(([k,n])=>`<button class="${tab===k?'on':''}" onclick="tab='${k}';editing=null;render()">${n}</button>`).join('');
@@ -79,11 +71,11 @@ function render(){
  ({site:siteV,cats:catsV,projects:projV})[tab]()}
 
 const F=[['name','Name'],['role','Role'],['email','Email'],['instagram','Instagram link'],['behance','Behance link']];
-function siteV(){$('#v').innerHTML=`<div class="box"><h2>Site</h2>${[1,2,3].map(n=>imgField('s_hero_slide_'+n,'Hero slide '+n+' (image or video)',(n===1?S.hero_slide_1||S.hero_image:S['hero_slide_'+n])||'','image/*,video/*')).join('')}${imgField('s_about_image','About photo',S.about_image||'')}
+function siteV(){$('#v').innerHTML=`<div class="box"><h2>Site</h2>${imgField('s_hero_image','Hero image (home page)',S.hero_image||'')}${imgField('s_about_image','About photo',S.about_image||'')}
  ${F.map(([k,n])=>`<label>${n}</label><input id="s_${k}" value="${esc(S[k])}">`).join('')}
  <label>Capabilities (one per line)</label><textarea id="s_capabilities">${esc(S.capabilities)}</textarea>
  <label>Experience (one per line)</label><textarea id="s_experience">${esc(S.experience)}</textarea><br><br><button class="pri" onclick="saveSite()">Save</button></div>`}
-async function saveSite(){const keys=[...F.map(f=>f[0]),'capabilities','experience','hero_slide_1','hero_slide_2','hero_slide_3','about_image'];
+async function saveSite(){const keys=[...F.map(f=>f[0]),'capabilities','experience','hero_image','about_image'];
  const {error}=await sb.from('site_settings').upsert(keys.map(k=>({key:k,value:$('#s_'+k).value})),{onConflict:'key'});
  if(error)return T(error.message);T('Saved');await loadAll()}
 
@@ -93,7 +85,10 @@ async function saveCat(id){const {error}=await sb.from('categories').update({nam
  if(error)return T(error.message);T('Saved');await loadAll()}
 
 function projV(){
- if(!editing){$('#v').innerHTML=`<div class="box"><div class="bar"><h2>Projects</h2><button class="pri" onclick="newP()">+ New project</button></div>${P.map(p=>`<div class="list"><div>${esc(p.title)}<br><small>${esc((C.find(c=>c.id===p.category_id)||{}).name)} / ${p.year||''}</small></div><button onclick="editP('${p.id}')">Edit</button></div>`).join('')||'<small>No projects yet.</small>'}</div>`;return}
+ if(!editing){
+ const L0=c=>P.filter(p=>p.category_id===c.id).sort((a,b)=>(a.sort||0)-(b.sort||0));
+ $('#v').innerHTML=`<div class="bar"><h2>Projects</h2><button class="pri" onclick="newP()">+ New project</button></div>`+
+ C.map(c=>{const L=L0(c);return `<div class="box"><h2>${esc(c.name)} <small style="color:var(--mute);font-weight:400">(${L.length})</small></h2>${L.map((p,i)=>`<div class="list"><div><span class="ord">${i+1}</span>${esc(p.title)} <small>/ ${p.year||''}</small></div><div class="acts"><button class="mv" title="Move up" ${i===0?'disabled':''} onclick="mv('${p.id}',-1)">▲</button><button class="mv" title="Move down" ${i===L.length-1?'disabled':''} onclick="mv('${p.id}',1)">▼</button><button onclick="editP('${p.id}')">Edit</button></div></div>`).join('')||'<small>No projects in this category yet.</small>'}</div>`}).join('');return}
  const p=editing,imgs=I.filter(i=>i.project_id===p.id);
  $('#v').innerHTML=`<div class="box"><h2>${p.id?'Edit project':'New project'}</h2>
  <div class="row"><div><label>Title</label><input id="p_title" value="${esc(p.title)}"></div><div><label>Category</label><select id="p_category_id">${C.map(c=>`<option value="${c.id}" ${c.id===p.category_id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div></div>
@@ -104,7 +99,7 @@ function projV(){
  <label>Gallery images</label><div class="gal">${imgs.map(i=>`<div><img class="thumb" src="${esc(i.url)}"><button class="del" onclick="delImg('${i.id}')">Delete</button></div>`).join('')||'<small>No images yet.</small>'}</div>
  <label>Add gallery images (you can pick several)</label><input id="gal" type="file" accept="image/*" multiple><br><br>
  <button class="pri" id="sv" onclick="saveP()">Save</button> <button onclick="editing=null;render()">Cancel</button> ${p.id?`<button class="del" style="float:right" onclick="delP('${p.id}')">Delete project</button>`:''}</div>`}
-const newP=()=>{editing={id:null,title:'',year:new Date().getFullYear(),category_id:(C[0]||{}).id,client:'',role:'',description:'',cover_url:'',sort:P.length+1};render()};
+const newP=()=>{editing={id:null,title:'',year:new Date().getFullYear(),category_id:(C[0]||{}).id,client:'',role:'',description:'',cover_url:'',sort:P.filter(p=>p.category_id===(C[0]||{}).id).length+1};render()};
 const editP=id=>{editing={...P.find(p=>p.id===id)};render()};
 function snap(){['title','category_id','year','sort','client','role','description','cover_url'].forEach(k=>{const e=$('#p_'+k);if(e)editing[k]=e.value})}
 async function saveP(){snap();const p=editing;if(!p.title.trim())return T('Title is required');$('#sv').textContent='Saving…';
@@ -114,6 +109,13 @@ async function saveP(){snap();const p=editing;if(!p.title.trim())return T('Title
  let n=I.filter(i=>i.project_id===id).length;
  for(const f of [...$('#gal').files]){const url=await up(f,'projects');const {error}=await sb.from('project_images').insert({project_id:id,url,sort:++n});if(error)throw error}
  T('Saved');await loadAll();editing=null;render()}catch(x){T(x.message);$('#sv').textContent='Save'}}
+async function mv(id,d){const y=scrollY,p=P.find(x=>x.id===id);
+ const L=P.filter(x=>x.category_id===p.category_id).sort((a,b)=>(a.sort||0)-(b.sort||0));
+ const i=L.findIndex(x=>x.id===id),j=i+d;if(j<0||j>=L.length)return;
+ [L[i],L[j]]=[L[j],L[i]];
+ const rs=await Promise.all(L.map((x,k)=>x.sort===k+1?null:sb.from('projects').update({sort:k+1}).eq('id',x.id)));
+ const er=rs.find(r=>r&&r.error);if(er)return T(er.error.message);
+ await loadAll();render();scrollTo(0,y)}
 async function delImg(id){snap();await sb.from('project_images').delete().eq('id',id);await loadAll();render()}
 async function delP(id){if(!confirm('Delete this project and its gallery?'))return;await sb.from('projects').delete().eq('id',id);T('Deleted');await loadAll();editing=null;render()}
 
