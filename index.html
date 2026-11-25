@@ -137,9 +137,9 @@ h2.t{font-family:var(--serif);font-weight:400;font-size:clamp(32px,4vw,44px);lin
 .credits h4{font-size:11px;letter-spacing:.14em;color:var(--red);font-weight:400;text-transform:uppercase;margin-bottom:6px}
 .credits div{margin-bottom:26px}.credits p{line-height:1.55}.credits a:hover{color:var(--red)}
 footer{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding:26px var(--pad);color:var(--mute);font-size:10px;letter-spacing:.16em;text-transform:uppercase}
-.fade{animation:f .5s ease}@keyframes f{from{opacity:0}to{opacity:1}}
+
 @media(max-width:760px){.links{gap:14px}.links a.wk{display:none}.links .btn{padding:8px 12px}.logo{font-size:18px}.teaser{grid-template-columns:1fr;gap:26px}.teaser .ph{max-width:220px}.meta{grid-template-columns:1fr 1fr}.meta>div:last-child{grid-column:1/-1}.about{grid-template-columns:1fr}.about .ph{margin:auto}.gal{grid-template-columns:1fr}.hero .sub{flex-direction:column;gap:6px}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
 a:focus-visible{outline:1px solid var(--red);outline-offset:3px}
 
 /* red hover frame */
@@ -181,6 +181,44 @@ a:focus-visible{outline:1px solid var(--red);outline-offset:3px}
 .wa-float svg{width:32px;height:32px;fill:#fff}
 @keyframes wapulse{0%{box-shadow:0 6px 22px rgba(0,0,0,.45),0 0 0 0 rgba(37,211,102,.55)}70%,100%{box-shadow:0 6px 22px rgba(0,0,0,.45),0 0 0 16px rgba(37,211,102,0)}}
 @media(max-width:760px){.wa-float{right:14px;bottom:14px;width:54px;height:54px}}
+
+/* ===== motion & new sections ===== */
+#app{transition:opacity .28s ease,transform .28s ease}
+#app.leave{opacity:0;transform:translateY(-14px)}
+.fade{animation:f .6s cubic-bezier(.2,.7,.2,1)}@keyframes f{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s ease var(--d,0s),transform .8s cubic-bezier(.2,.7,.2,1) var(--d,0s),box-shadow .25s ease}
+.rv.in{opacity:1;transform:none}
+.scene.rv{transform:scale(.94)}
+.sp .ch{display:inline-block;opacity:0;transform:translateY(.55em);transition:opacity .6s ease,transform .7s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--i)*var(--st,35ms))}
+.sp .w{display:inline-block;white-space:nowrap}
+.sp.in .ch{opacity:1;transform:none}
+.hero{overflow:hidden}
+.hero::before{content:"";position:absolute;left:-50%;top:-50%;width:200%;height:200%;z-index:1;pointer-events:none;opacity:.11;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+ animation:grain .9s steps(1) infinite;will-change:transform}
+@keyframes grain{0%{transform:translate(0,0)}20%{transform:translate(-6%,4%)}40%{transform:translate(5%,-7%)}60%{transform:translate(-4%,-3%)}80%{transform:translate(7%,6%)}100%{transform:translate(0,0)}}
+.clients{padding:26px 0 8px;border-bottom:1px solid var(--line)}
+.clients .cap{text-align:center;color:var(--mute);font-size:10px;margin-bottom:16px}
+.mq{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.mqt{display:flex;width:max-content;animation:mq var(--dur,60s) linear infinite}
+.mq:hover .mqt{animation-play-state:paused}
+@keyframes mq{to{transform:translateX(-50%)}}
+.cl{flex:none;display:flex;align-items:center;justify-content:center;height:46px;padding:0 34px;font-family:var(--serif);font-size:22px;color:var(--mute);opacity:.7;transition:opacity .3s,filter .3s}
+.cl img{height:100%;width:auto;max-width:160px;object-fit:contain;filter:grayscale(1)}
+.cl:hover{opacity:1}.cl:hover img{filter:none}
+.clients.wh .cl img{filter:brightness(0) invert(1)}.clients.wh .cl:hover img{filter:brightness(0) invert(1)}
+.testi{padding:80px var(--pad) 40px;text-align:center;background:#070707;border-top:1px solid var(--line)}
+.roll{position:relative;height:min(68vh,540px);max-width:720px;margin:34px auto 0;overflow:hidden;-webkit-mask-image:linear-gradient(transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(transparent,#000 14%,#000 86%,transparent)}
+.rtrack{animation:roll var(--dur,60s) linear infinite;animation-play-state:paused}
+.roll.run .rtrack{animation-play-state:running}.roll.run:hover .rtrack{animation-play-state:paused}
+.roll.st{height:auto;-webkit-mask-image:none;mask-image:none}.roll.st .rtrack{animation:none}.roll.st .rset{padding-top:0}
+@keyframes roll{to{transform:translateY(-50%)}}
+.rset{padding-top:36%}
+.cr{padding:0 8px 64px}
+.cr blockquote{font-family:var(--serif);font-style:italic;font-size:clamp(20px,2.4vw,27px);line-height:1.4;color:#e4dccb;margin-bottom:18px}
+.cr b{display:block;font-weight:400;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--cream)}
+.cr span{display:block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--red);margin-top:6px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important}.rv,.sp .ch{opacity:1!important;transform:none!important}.mq{overflow-x:auto}#app.leave{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -195,7 +233,7 @@ a:focus-visible{outline:1px solid var(--red);outline-offset:3px}
 
 <script>
 const SB='https://kyumgelhzkblgtbxuyou.supabase.co',KEY='sb_publishable_uKfIMfgpk28ReR6wDlI78A_fS1axIZq';
-const SITE={name:'Ahmed Haniya',role:'Art Director & Designer',email:'hello@example.com',whatsapp:'',bio:'',instagram:'https://instagram.com/',behance:'https://behance.net/',capabilities:'Brand Identity\nArt Direction\nEditorial',experience:'Selected Studios',hero_image:'',hero_slide_1:'',hero_slide_2:'',hero_slide_3:'',about_image:''};
+const SITE={name:'Ahmed Haniya',role:'Art Director & Designer',email:'hello@example.com',whatsapp:'',bio:'',instagram:'https://instagram.com/',behance:'https://behance.net/',capabilities:'Brand Identity\nArt Direction\nEditorial',experience:'Selected Studios',hero_image:'',logo_text:'',hero_title:'',hero_tagline:'',hero_role:'',hero_scroll:'',clients_title:'',clients_white:'',testi_title:'',hero_slide_1:'',hero_slide_2:'',hero_slide_3:'',about_image:''};
 const DESC='A brand identity for a film studio that lives in motion. The mark is built from a single torn frame, held between sharp focus and blur, so the logo feels like a scene that has just been interrupted.\n\nThe system carries across posters, titles and social formats with one rule: keep the light low and let the red lead the eye.';
 const DEF=[['social-media','Social Media','Campaigns & Content',['Midnight Feed','Golden Hour','Pulse','Afterglow']],['logos','Logos','Brand Identity',['Shadows of Silence','Metropolis Redux','Kinetic Chaos','Nexus']],['profiles','Profiles','Company Profiles',['Atlas Group','Meridian','Orbit Studio','Harbor & Co']],['video','Video','Motion & Titles',['Static Dreams','Reel No. 9','Low Light','Frame Rate']]];
 let CATS=DEF.map(([id,name,sub,t])=>({id,name,sub,cover_url:'',items:t.map((title,i)=>({title,year:[2026,2025,2025,2024][i],client:'Nexus Films',role:'Branding & Direction',description:DESC,cover_url:'',images:[]}))}));
@@ -222,7 +260,7 @@ async function load(){
 const waNum=()=>String(SITE.whatsapp||'').replace(/\D/g,'').replace(/^00/,'');
 const waUrl=()=>waNum()?'https://wa.me/'+waNum():'';
 const WA_SVG='<svg class="wa-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>';
-function setNav(){const u=waUrl(),b=document.getElementById('wab'),f=document.getElementById('waf');
+function setNav(){const lg=document.querySelector('.logo');if(lg)lg.textContent=SITE.logo_text||'PORTFOLIO';const u=waUrl(),b=document.getElementById('wab'),f=document.getElementById('waf');
  if(b){if(u){b.href=u;b.innerHTML=WA_SVG+'<span>WhatsApp</span>';b.style.display=''}else b.style.display='none'}
  if(f){if(u){f.href=u;f.innerHTML=WA_SVG;f.style.display='flex'}else f.style.display='none'}}
 const slidesOf=()=>[SITE.hero_slide_1||SITE.hero_image,SITE.hero_slide_2,SITE.hero_slide_3].filter(Boolean);
@@ -240,22 +278,24 @@ function lb(urls,i){const o=document.createElement('div');o.className='lb';
  let x0=0;o.addEventListener('touchstart',e=>{x0=e.touches[0].clientX},{passive:true});
  o.addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-x0;if(Math.abs(d)>50&&urls.length>1)show(i+(d<0?1:-1))});
  show(i);document.addEventListener('keydown',k);document.body.style.overflow='hidden';document.body.appendChild(o);LBC=close}
-function heroName(n){const w=String(n||'').trim().split(/\s+/).filter(Boolean);
+function heroName(n){n=String(n||'').trim();if(n.includes('\n')){const l=n.split('\n').map(x=>x.trim()).filter(Boolean);return l.length<2?`<span class="n1">${esc(l[0]||'')}</span>`:`<span class="n1">${esc(l[0])}</span><span class="n2">${esc(l.slice(1).join(' '))}</span>`}
+ const w=n.split(/\s+/).filter(Boolean);
  return w.length<2?`<span class="n1">${esc(w[0]||'')}</span>`:`<span class="n1">${esc(w[0])}</span><span class="n2">${esc(w.slice(1).join(' '))}</span>`}
 function home(){
  const sl=slidesOf();
  $.innerHTML=`<div class="fade">
  <header class="hero"><div class="slides">${sl.length?sl.map(u=>`<div class="slide">${isVid(u)?`<video src="${esc(u)}" muted playsinline preload="metadata"></video>`:`<img src="${esc(u)}" alt="${esc(SITE.name)} — portfolio">`}</div>`).join(''):`<div class="slide on">${ph(0)}</div>`}</div>
   ${sl.length>1?'<button class="arr l" aria-label="Previous">‹</button><button class="arr r" aria-label="Next">›</button>':''}
-  <h1>${heroName(SITE.name)}</h1>
-  <div class="sub"><span>A Creative Portfolio</span><span>${esc(SITE.role)}</span></div>
-  <a class="play" href="#scenes">SCROLL TO PLAY</a>
+  <h1>${heroName(SITE.hero_title||SITE.name)}</h1>
+  <div class="sub"><span>${esc(SITE.hero_tagline||'A Creative Portfolio')}</span><span>${esc(SITE.hero_role||SITE.role)}</span></div>
+  <a class="play" href="#scenes">${esc(SITE.hero_scroll||'SCROLL TO PLAY')}</a>
   ${sl.length>1?`<div class="dash">${sl.map((_,i)=>`<button aria-label="Slide ${i+1}"></button>`).join('')}</div>`:''}
  </header>
+ ${clientsHTML()}
  <section class="pad" id="scenes"><h2 class="t">Choose a scene</h2><p class="note">${CATS.length} categories. Select one to see the work.</p></section>
  <div class="strip"><div class="reel" id="reel">${CATS.map((c,i)=>`<a class="scene" href="#${c.id}">${ph(i+1,'',c.cover_url,c.name+' — '+SITE.name)}<div class="in"><div class="n">SCENE ${pad2(i+1)}</div><div class="nm">${esc(c.name)}</div><div class="ds">${esc(c.sub)}</div></div></a>`).join('')}</div></div>
  <div class="track"><i id="head"></i></div><div class="cap">Playhead</div>
- <section class="teaser ${SITE.about_image?'':'nophoto'}">${SITE.about_image?ph(2,'',SITE.about_image,'Portrait of '+SITE.name):''}<div><div class="cap" style="color:var(--red)">About</div><h2 class="t" style="margin-top:6px">${esc(SITE.name)}</h2><p>${esc(SITE.bio||SITE.role)}</p><a class="btn2" href="#about">About me &rarr;</a>${waUrl()?`<a class="btn2 wa" href="${esc(waUrl())}" target="_blank" rel="noopener">${WA_SVG}WhatsApp</a>`:''}</div></section></div>`;
+ <section class="teaser ${SITE.about_image?'':'nophoto'}">${SITE.about_image?ph(2,'',SITE.about_image,'Portrait of '+SITE.name):''}<div><div class="cap" style="color:var(--red)">About</div><h2 class="t" style="margin-top:6px">${esc(SITE.name)}</h2><p>${esc(SITE.bio||SITE.role)}</p><a class="btn2" href="#about">About me &rarr;</a>${waUrl()?`<a class="btn2 wa" href="${esc(waUrl())}" target="_blank" rel="noopener">${WA_SVG}WhatsApp</a>`:''}</div></section>${testiHTML()}</div>`;
  const r=document.getElementById('reel'),h=document.getElementById('head');
  r.onscroll=()=>{const m=r.scrollWidth-r.clientWidth;h.style.left=(m>0?r.scrollLeft/m*100:0)+'%'};
  const el=[...$.querySelectorAll('.slide')];
@@ -324,6 +364,39 @@ function about(){
   <div><h4>Contact / Get in touch</h4>${waUrl()?`<p><a href="${esc(waUrl())}" target="_blank" rel="noopener">WhatsApp: +${esc(waNum())}</a></p>`:''}<p><a href="mailto:${esc(SITE.email)}">${esc(SITE.email)}</a></p><p><a href="${esc(SITE.instagram)}" target="_blank" rel="noopener">Instagram</a></p><p><a href="${esc(SITE.behance)}" target="_blank" rel="noopener">Behance</a></p>${waUrl()?`<p style="margin-top:18px"><a class="btn2 wa" href="${esc(waUrl())}" target="_blank" rel="noopener">${WA_SVG}Chat on WhatsApp</a></p>`:''}</div>
  </div></div>`;
 }
+
+const jl=k=>{let v=SITE[k];try{if(typeof v==='string')v=JSON.parse(v)}catch(e){v=[]}return Array.isArray(v)?v:[]};
+function clientsHTML(){const L=jl('clients').filter(c=>c&&(c.logo||c.name));if(!L.length)return'';
+ const one=L.map(c=>{const i=c.logo?`<img src="${esc(c.logo)}" alt="${esc(c.name)}" loading="lazy">`:esc(c.name),t=c.url&&/^https?:/i.test(c.url)?`<a class="cl" href="${esc(c.url)}" target="_blank" rel="noopener">${i}</a>`:`<div class="cl">${i}</div>`;return t}).join('');
+ const set=one.repeat(Math.ceil(12/L.length));
+ return `<div class="clients ${SITE.clients_white==='1'?'wh':''}"><div class="cap">${esc(SITE.clients_title||'Selected clients')}</div><div class="mq"><div class="mqt" style="--dur:${Math.max(40,L.length*Math.ceil(12/L.length)*5)}s">${set}${set}</div></div></div>`}
+function testiHTML(){const L=jl('testimonials').filter(t=>t&&t.quote);if(!L.length)return'';
+ const set=L.map(t=>`<figure class="cr"><blockquote>&ldquo;${esc(t.quote)}&rdquo;</blockquote><figcaption><b>${esc(t.name)}</b>${t.role?`<span>${esc(t.role)}</span>`:''}</figcaption></figure>`).join('');
+ return `<section class="testi"><div class="cap" style="color:var(--red)">Testimonials</div><h2 class="t" style="margin-top:6px">${esc(SITE.testi_title||'The End Credits')}</h2><div class="roll"><div class="rtrack"><div class="rset">${set}</div></div></div></section>`}
+/* ---- motion: reveal, split headings, credits roll ---- */
+const RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
+let IO=null;
+function splitEl(el){const txt=el.textContent,ar=/[\u0600-\u06FF]/.test(txt);let i=0;const n=ar?txt.trim().split(/\s+/).length:txt.replace(/\s/g,'').length;
+ el.style.setProperty('--st',Math.min(35,Math.floor(900/Math.max(n,1)))+'ms');el.setAttribute('aria-label',txt.trim());
+ const walk=nd=>[...nd.childNodes].forEach(c=>{if(c.nodeType===3){const f=document.createDocumentFragment();
+  if(ar)c.textContent.split(/(\s+)/).forEach(t=>{if(!t.trim())return t&&f.append(' ');const b=document.createElement('span');b.className='ch';b.setAttribute('aria-hidden','true');b.style.setProperty('--i',i++);b.textContent=t;f.append(b)});
+  else c.textContent.split(/(\s+)/).forEach(t=>{if(!t)return;if(!t.trim())return f.append(' ');const w=document.createElement('span');w.className='w';[...t].forEach(ch=>{const b=document.createElement('span');b.className='ch';b.setAttribute('aria-hidden','true');b.style.setProperty('--i',i++);b.textContent=ch;w.append(b)});f.append(w)});
+  c.replaceWith(f)}else if(c.nodeType===1)walk(c)});
+ walk(el);el.classList.add('sp')}
+function fx(){if(IO)IO.disconnect();IO=null;
+ const roll=$.querySelector('.roll');
+ if(roll){const set=roll.querySelector('.rset'),h=roll.clientHeight;
+  if(set.scrollHeight-parseFloat(getComputedStyle(set).paddingTop)<h*0.9){roll.classList.add('st')}
+  else{set.parentNode.append(set.cloneNode(true));roll.style.setProperty('--dur',Math.max(25,Math.round(set.scrollHeight/38))+'s')}}
+ if(RM||!('IntersectionObserver'in window))return;
+ IO=new IntersectionObserver(es=>{let k=0;es.forEach(e=>{if(!e.isIntersecting)return;const el=e.target;IO.unobserve(el);
+  if(el.classList.contains('roll')){el.classList.add('run');return}
+  if(el.classList.contains('sp')){el.classList.add('in');return}
+  el.style.setProperty('--d',(Math.min(k++,5)*.09)+'s');el.classList.add('in');setTimeout(()=>el.classList.remove('rv','in'),1600)})},{threshold:.12,rootMargin:'0px 0px -6% 0px'});
+ $.querySelectorAll('.hero h1,h2.t,.page h1,.proj h1,.credits h1').forEach(h=>{splitEl(h);IO.observe(h)});
+ $.querySelectorAll('.card,.scene,.gal .ph,.gal .vid,.gal .pdf,.teaser .ph,.teaser p,.teaser .btn2,.meta>div,.pn,.note,.about>.ph,.credits>div,.cl-wrap,.clients').forEach(el=>{el.classList.add('rv');IO.observe(el)});
+ if(roll)IO.observe(roll)}
+let firstRoute=true,rt=0;
 const old=h=>slug(h.slice(8))?all.find(p=>h.startsWith('project-')&&'project-'+slug(p.title)===h):null;
 const bk=document.getElementById('back');
 bk.onclick=()=>{if(bk.dataset.to)location.hash='#'+bk.dataset.to};
@@ -375,6 +448,10 @@ function route(){
  const h=location.hash.slice(1)||'home';
  if(h==='scenes')return;
  if(LBC)LBC();
+ if(firstRoute||RM||!$.firstElementChild||$.querySelector('noscript')){firstRoute=false;return render(h)}
+ const my=++rt;$.classList.add('leave');
+ setTimeout(()=>{if(my!==rt)return;$.style.transition='none';$.classList.remove('leave');render(location.hash.slice(1)||'home');void $.offsetWidth;$.style.transition=''},270)}
+function render(h){
  let to=null;
  if(h==='about')about();
  else if(CATS.some(c=>c.id===h))category(h);
@@ -384,7 +461,7 @@ function route(){
  if(h==='about'||CATS.some(c=>c.id===h))to='home';
  else{const p=all.find(p=>p.h===h);if(p)to=p.c.id}
  bk.dataset.to=to||'';bk.style.display=to?'flex':'none';
- window.scrollTo(0,0);seoRoute(h);track(h);
+ window.scrollTo(0,0);seoRoute(h);track(h);fx();
 }
 addEventListener('hashchange',route);
 load().then(route);

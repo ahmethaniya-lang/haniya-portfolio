@@ -89,17 +89,18 @@ function login(){app.innerHTML=`<div class="login box"><h1>HANIYA ADMIN</h1><lab
  $('#go').onclick=go;$('#pw').onkeydown=e=>{if(e.key==='Enter')go()}}
 
 function render(){
- const tabs=[['site','Site'],['cats','Categories'],['projects','Projects'],['stats','Visits']].map(([k,n])=>`<button class="${tab===k?'on':''}" onclick="tab='${k}';editing=null;render()">${n}</button>`).join('');
+ const tabs=[['site','Site'],['clients','Clients'],['testi','Testimonials'],['cats','Categories'],['projects','Projects'],['stats','Visits']].map(([k,n])=>`<button class="${tab===k?'on':''}" onclick="tab='${k}';editing=null;CE=null;TE=null;render()">${n}</button>`).join('');
  app.innerHTML=`<div class="bar"><h1>HANIYA ADMIN</h1><div><a class="btn" href="/" target="_blank" style="text-decoration:none">View site</a> <button onclick="sb.auth.signOut().then(login)">Sign out</button></div></div><div class="tabs">${tabs}</div><div id="v"></div>`;
- ({site:siteV,cats:catsV,projects:projV,stats:statsV})[tab]()}
+ ({site:siteV,clients:clientsV,testi:testiV,cats:catsV,projects:projV,stats:statsV})[tab]()}
 
 const F=[['name','Name'],['role','Role'],['email','Email'],['whatsapp','WhatsApp number (with country code, digits only, e.g. 970599123456)'],['instagram','Instagram link'],['behance','Behance link']];
-function siteV(){$('#v').innerHTML=`<div class="box"><h2>Site</h2>${[1,2,3].map(n=>imgField('s_hero_slide_'+n,'Hero slide '+n+' (image or video)',(n===1?S.hero_slide_1||S.hero_image:S['hero_slide_'+n])||'','image/*,video/*')).join('')}${imgField('s_about_image','About photo',S.about_image||'')}
+const HF=[['logo_text','Top-left logo text (default: PORTFOLIO)'],['hero_title','Big name over the banner (blank = Name below). Use a new line to split into 2 colours: first line white, second grey'],['hero_tagline','Small text, bottom-left of banner (default: A Creative Portfolio)'],['hero_role','Small text, bottom-right of banner (blank = Role below)'],['hero_scroll','Text above the dashes (default: SCROLL TO PLAY)']];
+function siteV(){$('#v').innerHTML=`<div class="box"><h2>Banner text</h2>${HF.map(([k,n])=>`<label>${n}</label>${k==='hero_title'?`<textarea id="s_${k}" style="min-height:64px">${esc(S[k])}</textarea>`:`<input id="s_${k}" value="${esc(S[k])}">`}`).join('')}</div><div class="box"><h2>Site</h2>${[1,2,3].map(n=>imgField('s_hero_slide_'+n,'Hero slide '+n+' (image or video)',(n===1?S.hero_slide_1||S.hero_image:S['hero_slide_'+n])||'','image/*,video/*')).join('')}${imgField('s_about_image','About photo',S.about_image||'')}
  ${F.map(([k,n])=>`<label>${n}</label><input id="s_${k}" value="${esc(S[k])}">`).join('')}
  <label>Short bio (shown on the home page and About page; blank line between paragraphs)</label><textarea id="s_bio">${esc(S.bio)}</textarea>
  <label>Capabilities (one per line)</label><textarea id="s_capabilities">${esc(S.capabilities)}</textarea>
  <label>Experience (one per line)</label><textarea id="s_experience">${esc(S.experience)}</textarea><br><br><button class="pri" onclick="saveSite()">Save</button></div>`}
-async function saveSite(){const keys=[...F.map(f=>f[0]),'bio','capabilities','experience','hero_slide_1','hero_slide_2','hero_slide_3','about_image'];
+async function saveSite(){const keys=[...F.map(f=>f[0]),...HF.map(f=>f[0]),'bio','capabilities','experience','hero_slide_1','hero_slide_2','hero_slide_3','about_image'];
  const {error}=await sb.from('site_settings').upsert(keys.map(k=>({key:k,value:$('#s_'+k).value})),{onConflict:'key'});
  if(error)return T(error.message);T('Saved');await loadAll()}
 
@@ -142,6 +143,33 @@ async function mv(id,d){const y=scrollY,p=P.find(x=>x.id===id);
  await loadAll();render();scrollTo(0,y)}
 async function delImg(id){snap();await sb.from('project_images').delete().eq('id',id);await loadAll();render()}
 async function delP(id){if(!confirm('Delete this project and its gallery?'))return;await sb.from('projects').delete().eq('id',id);T('Deleted');await loadAll();editing=null;render()}
+
+
+/* ---- Clients & Testimonials (stored as JSON in site_settings, no SQL needed) ---- */
+const jget=k=>{let v=S[k];try{if(typeof v==='string')v=JSON.parse(v)}catch(e){v=[]}return Array.isArray(v)?v:[]};
+const rid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+async function jsave(k,arr,msg){const {error}=await sb.from('site_settings').upsert({key:k,value:JSON.stringify(arr)},{onConflict:'key'});if(error)return T(error.message);T(msg||'Saved');await loadAll();render()}
+async function setKV(k,v){const {error}=await sb.from('site_settings').upsert({key:k,value:v},{onConflict:'key'});if(error)return T(error.message);T('Saved');await loadAll()}
+async function jmove(k,i,d){const a=jget(k),j=i+d;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];await jsave(k,a,'Moved')}
+async function jdel(k,i){if(!confirm('Delete?'))return;const a=jget(k);a.splice(i,1);await jsave(k,a,'Deleted')}
+const mvb=(k,i,n)=>`<button class="mv" ${i===0?'disabled':''} onclick="jmove('${k}',${i},-1)">▲</button><button class="mv" ${i===n-1?'disabled':''} onclick="jmove('${k}',${i},1)">▼</button>`;
+let CE=null;
+function clientsV(){const a=jget('clients');
+ if(CE){const c=CE.i>=0?a[CE.i]:{};$('#v').innerHTML=`<div class="box"><h2>${CE.i>=0?'Edit client':'New client'}</h2><label>Name (shown if there is no logo)</label><input id="cl_name" value="${esc(c.name)}">
+  ${imgField('cl_logo','Logo (transparent PNG / SVG is best)',c.logo||'')}<label>Link (optional, https://...)</label><input id="cl_url" value="${esc(c.url)}"><br><br><button class="pri" onclick="saveClient()">Save</button> <button onclick="CE=null;render()">Cancel</button></div>`;return}
+ $('#v').innerHTML=`<div class="box"><h2>Clients strip (under the banner)</h2><label>Title</label><input id="s_clients_title" value="${esc(S.clients_title)}" placeholder="Selected clients">
+  <label style="display:flex;gap:8px;align-items:center;color:var(--cream)"><input type="checkbox" id="s_clients_white" style="width:auto" ${S.clients_white==='1'?'checked':''}> Make all logos white (use when your logos are dark and invisible)</label><br><button class="pri" onclick="saveClientsOpt()">Save options</button></div>
+  <div class="bar"><h2>Clients (${a.length})</h2><button class="pri" onclick="CE={i:-1};render()">+ Add client</button></div><div class="box">${a.map((c,i)=>`<div class="list"><div style="display:flex;gap:12px;align-items:center">${c.logo?`<img class="thumb" style="width:80px;height:44px;margin:0;object-fit:contain" src="${esc(c.logo)}">`:''}<span>${esc(c.name)}</span></div><div class="acts">${mvb('clients',i,a.length)}<button onclick="CE={i:${i}};render()">Edit</button><button class="del" onclick="jdel('clients',${i})">Delete</button></div></div>`).join('')||'<small>No clients yet. The strip stays hidden until you add one.</small>'}</div>`}
+async function saveClientsOpt(){await setKV('clients_title',$('#s_clients_title').value);await setKV('clients_white',$('#s_clients_white').checked?'1':'')}
+async function saveClient(){const a=jget('clients'),o={id:CE.i>=0?a[CE.i].id:rid(),name:$('#cl_name').value.trim(),logo:$('#cl_logo').value,url:$('#cl_url').value.trim()};
+ if(!o.name&&!o.logo)return T('Add a name or a logo');CE.i>=0?a[CE.i]=o:a.push(o);const i=CE.i;CE=null;await jsave('clients',a)}
+let TE=null;
+function testiV(){const a=jget('testimonials');
+ if(TE){const t=TE.i>=0?a[TE.i]:{};$('#v').innerHTML=`<div class="box"><h2>${TE.i>=0?'Edit testimonial':'New testimonial'}</h2><div class="row"><div><label>Client name</label><input id="t_name" value="${esc(t.name)}"></div><div><label>Role / company</label><input id="t_role" value="${esc(t.role)}"></div></div><label>Testimonial</label><textarea id="t_quote">${esc(t.quote)}</textarea><br><br><button class="pri" onclick="saveTesti()">Save</button> <button onclick="TE=null;render()">Cancel</button></div>`;return}
+ $('#v').innerHTML=`<div class="box"><h2>Credits section title</h2><input id="s_testi_title" value="${esc(S.testi_title)}" placeholder="The End Credits"><br><br><button class="pri" onclick="setKV('testi_title',$('#s_testi_title').value)">Save title</button></div>
+  <div class="bar"><h2>Testimonials (${a.length})</h2><button class="pri" onclick="TE={i:-1};render()">+ Add testimonial</button></div><div class="box">${a.map((t,i)=>`<div class="list"><div><b>${esc(t.name)}</b> <small>${esc(t.role)}</small><br><small>${esc(String(t.quote||'').slice(0,90))}${String(t.quote||'').length>90?'…':''}</small></div><div class="acts">${mvb('testimonials',i,a.length)}<button onclick="TE={i:${i}};render()">Edit</button><button class="del" onclick="jdel('testimonials',${i})">Delete</button></div></div>`).join('')||'<small>No testimonials yet. The section stays hidden until you add one.</small>'}</div>`}
+async function saveTesti(){const a=jget('testimonials'),o={id:TE.i>=0?a[TE.i].id:rid(),name:$('#t_name').value.trim(),role:$('#t_role').value.trim(),quote:$('#t_quote').value.trim()};
+ if(!o.quote)return T('Write the testimonial text');TE.i>=0?a[TE.i]=o:a.push(o);TE=null;await jsave('testimonials',a)}
 
 /* ---- Visits ---- */
 let RANGE=7;
