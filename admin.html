@@ -119,9 +119,9 @@ function projV(){
  <div class="row"><div><label>Year</label><input id="p_year" type="number" value="${p.year||''}"></div><div><label>Order (1 = first)</label><input id="p_sort" type="number" value="${p.sort||0}"></div></div>
  <div class="row"><div><label>Client</label><input id="p_client" value="${esc(p.client)}"></div><div><label>Role</label><input id="p_role" value="${esc(p.role)}"></div></div>
  <label>Description (blank line between paragraphs)</label><textarea id="p_description">${esc(p.description)}</textarea>
- ${imgField('p_cover_url','Cover image',p.cover_url||'')}
- <label>Gallery images</label><div class="gal">${imgs.map(i=>`<div>${isPdf(i.url)?`<a href="${esc(i.url)}" target="_blank" style="text-decoration:none"><div class="thumb pdft">PDF</div></a><small class="fn">${esc(decodeURIComponent(i.url.split('/').pop()))}</small>`:`<img class="thumb" src="${esc(i.url)}">`}<button class="del" onclick="delImg('${i.id}')">Delete</button></div>`).join('')||'<small>No images yet.</small>'}</div>
- <label>Add gallery images or PDF files (you can pick several)</label><input id="gal" type="file" accept="image/*,application/pdf" multiple><br><br>
+ ${imgField('p_cover_url','Cover (image or video)',p.cover_url||'','image/*,video/*')}
+ <label>Gallery images</label><div class="gal">${imgs.map(i=>`<div>${isPdf(i.url)?`<a href="${esc(i.url)}" target="_blank" style="text-decoration:none"><div class="thumb pdft">PDF</div></a><small class="fn">${esc(decodeURIComponent(i.url.split('/').pop()))}</small>`:isVid(i.url)?`<video class="thumb" src="${esc(i.url)}#t=0.1" muted controls preload="metadata"></video>`:`<img class="thumb" src="${esc(i.url)}">`}<button class="del" onclick="delImg('${i.id}')">Delete</button></div>`).join('')||'<small>No images yet.</small>'}</div>
+ <label>Add gallery images, videos or PDF files (you can pick several; each file up to 50MB)</label><input id="gal" type="file" accept="image/*,video/*,application/pdf" multiple><br><br>
  <button class="pri" id="sv" onclick="saveP()">Save</button> <button onclick="editing=null;render()">Cancel</button> ${p.id?`<button class="del" style="float:right" onclick="delP('${p.id}')">Delete project</button>`:''}</div>`}
 const newP=()=>{editing={id:null,title:'',year:new Date().getFullYear(),category_id:(C[0]||{}).id,client:'',role:'',description:'',cover_url:'',sort:P.filter(p=>p.category_id===(C[0]||{}).id).length+1};render()};
 const editP=id=>{editing={...P.find(p=>p.id===id)};render()};

@@ -50,7 +50,9 @@ nav{position:absolute;top:0;left:0;right:0;z-index:5;display:flex;justify-conten
 .ph{position:relative;overflow:hidden;background:radial-gradient(circle at 30% 35%,var(--a),transparent 60%),radial-gradient(circle at 75% 75%,var(--b),transparent 55%),#14110f}
 .ph::before{content:"";position:absolute;left:50%;bottom:34%;width:24%;aspect-ratio:.85;transform:translateX(-50%);background:#0a0807;border-radius:50%;filter:blur(7px)}
 .ph::after{content:"";position:absolute;left:50%;bottom:-32%;width:72%;height:58%;transform:translateX(-50%);background:#070605;border-radius:50% 50% 0 0;filter:blur(7px)}
-.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2}
+.ph img,.ph video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2}
+.gal .vid{grid-column:1/-1;background:#000;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.gal .vid video{display:block;width:100%;max-height:82vh;background:#000;outline:0}
 /* hero */
 .hero{position:relative;height:min(100vh,780px);min-height:560px;display:flex;flex-direction:column;justify-content:flex-end;padding:0 var(--pad) 70px}
 .hero .ph{position:absolute;inset:0;opacity:.75}
@@ -201,7 +203,8 @@ let all=[];
 const PAL=[['#8a3a3a','#3a2a1a'],['#2a4a7a','#14142a'],['#9a5a3a','#2a2a14'],['#8a2a3a','#2a1414'],['#3a6a8a','#101828'],['#9a7a3a','#1a1a10']];
 const slug=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const ph=(i,x='',u='',alt='')=>`<div class="ph ${x}" style="--a:${PAL[i%6][0]};--b:${PAL[i%6][1]}">${u?`<img src="${esc(u)}" alt="${esc(alt)}" loading="lazy">`:''}</div>`;
+const isVid=u=>/\.(mp4|webm|mov|m4v)(\?|$)/i.test(u||'');
+const ph=(i,x='',u='',alt='')=>`<div class="ph ${x}" style="--a:${PAL[i%6][0]};--b:${PAL[i%6][1]}">${u?(isVid(u)?`<video src="${esc(u)}#t=0.1" muted playsinline preload="metadata" aria-label="${esc(alt)}"></video>`:`<img src="${esc(u)}" alt="${esc(alt)}" loading="lazy">`):''}</div>`;
 const hid=p=>'project-'+(p.id||slug(p.title));
 const lines=s=>String(s||'').split('\n').map(x=>x.trim()).filter(Boolean);
 const $=document.getElementById('app'),pad2=n=>String(n).padStart(2,'0');
@@ -222,7 +225,6 @@ const WA_SVG='<svg class="wa-ic" viewBox="0 0 24 24" aria-hidden="true"><path d=
 function setNav(){const u=waUrl(),b=document.getElementById('wab'),f=document.getElementById('waf');
  if(b){if(u){b.href=u;b.innerHTML=WA_SVG+'<span>WhatsApp</span>';b.style.display=''}else b.style.display='none'}
  if(f){if(u){f.href=u;f.innerHTML=WA_SVG;f.style.display='flex'}else f.style.display='none'}}
-const isVid=u=>/\.(mp4|webm|mov|m4v)(\?|$)/i.test(u||'');
 const slidesOf=()=>[SITE.hero_slide_1||SITE.hero_image,SITE.hero_slide_2,SITE.hero_slide_3].filter(Boolean);
 let LBC=null;
 function lb(urls,i){const o=document.createElement('div');o.className='lb';
@@ -275,7 +277,7 @@ function category(id){
  const c=CATS.find(x=>x.id===id);
  $.innerHTML=`<div class="page fade"><h1>${esc(c.name)}</h1>
  <div class="tabs">${CATS.map(t=>`<a href="#${t.id}" class="${t.id===id?'on':''}">${esc(t.name)}</a>`).join('')}</div>
- <div class="grid">${c.items.map((p,i)=>`<a class="card" href="#${hid(p)}">${ph(i,'',p.cover_url,p.title+' — '+c.name)}<span class="no">NO. ${pad2(i+1)}</span><div class="tx"><h3>${esc(p.title)}</h3><div class="ct">${esc(c.name)} / ${p.year||''}</div></div></a>`).join('')}</div></div>`;
+ <div class="grid">${c.items.map((p,i)=>`<a class="card" href="#${hid(p)}">${ph(i,'',p.cover_url||(p.images||[]).find(isVid)||'',p.title+' — '+c.name)}<span class="no">NO. ${pad2(i+1)}</span><div class="tx"><h3>${esc(p.title)}</h3><div class="ct">${esc(c.name)} / ${p.year||''}</div></div></a>`).join('')}</div></div>`;
 }
 const isPdf=u=>/\.pdf(\?|$)/i.test(u||'');
 let PDFJS=null;
@@ -297,8 +299,8 @@ function project(h){
  const k=all.findIndex(p=>p.h===h),p=all[k],nx=all[(k+1)%all.length],it=p.c.items.findIndex(x=>x.id===p.id&&x.title===p.title);
  const row=(l,v)=>v?`<dt>${l}</dt><dd>${esc(v)}</dd>`:'';
  const paras=String(p.description||'').split(/\n\s*\n/).filter(Boolean);
- const urls=p.images||[],imgs=urls.filter(u=>!isPdf(u)),
-  gal=urls.length?urls.map((u,j)=>isPdf(u)?`<div class="pdf" data-src="${esc(u)}"><a class="pdfl" href="${esc(u)}" target="_blank" rel="noopener">Open PDF ↗</a><div class="pdfs">Loading PDF…</div></div>`:ph(j,'',u,p.title+' — '+p.c.name+' ('+(j+1)+')')):[0,1,2,3,4,5].map(j=>ph(it+j+1));
+ const urls=p.images||[],imgs=urls.filter(u=>!isPdf(u)&&!isVid(u)),
+  gal=urls.length?urls.map((u,j)=>isVid(u)?`<div class="vid"><video src="${esc(u)}#t=0.1" controls playsinline preload="metadata"></video></div>`:isPdf(u)?`<div class="pdf" data-src="${esc(u)}"><a class="pdfl" href="${esc(u)}" target="_blank" rel="noopener">Open PDF ↗</a><div class="pdfs">Loading PDF…</div></div>`:ph(j,'',u,p.title+' — '+p.c.name+' ('+(j+1)+')')):[0,1,2,3,4,5].map(j=>ph(it+j+1));
  $.innerHTML=`<div class="fade">${ph(it,'phero',p.cover_url,p.title+' — '+p.c.name)}
  <div class="proj"><h1>${esc(p.title)}</h1>
   <div class="meta"><div><dl>${row('Director',SITE.name)}${row('Category',p.c.name)}</dl></div>
@@ -309,6 +311,8 @@ function project(h){
  </div></div>`;
  if(imgs.length)$.querySelectorAll('.gal .ph').forEach((e,j)=>e.onclick=()=>lb(imgs,j));
  $.querySelectorAll('.gal .pdf').forEach(showPdf);
+ const vs=[...$.querySelectorAll('.gal .vid video')];vs.forEach(v=>v.addEventListener('play',()=>vs.forEach(o=>{if(o!==v)o.pause()})));
+ const hv=$.querySelector('.phero video');if(hv){hv.muted=true;hv.loop=true;hv.play().catch(()=>{})}
 }
 function about(){
  $.innerHTML=`<div class="about fade">${ph(2,'',SITE.about_image,'Portrait of '+SITE.name)}
